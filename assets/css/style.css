@@ -449,3 +449,47 @@ h1, h2, h3, h4, h5, h6 {
 .table-custom td {
     vertical-align: middle;
 }
+
+/* Responsive Dashboard & Utility Overrides */
+@media (max-width: 768px) {
+    .dashboard-wrapper {
+        flex-direction: column;
+    }
+    .dashboard-sidebar {
+        min-width: 100% !important;
+        max-width: 100% !important;
+        height: auto;
+    }
+    .dashboard-content {
+        padding: 1.25rem 1rem !important;
+    }
+    .sidebar-user-card {
+        padding: 1rem;
+    }
+    .dashboard-sidebar ul.components {
+        padding: 0.5rem 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
+    .dashboard-sidebar ul li {
+        flex: 1 1 auto;
+        padding: 0 0.5rem;
+        margin-bottom: 0.25rem;
+    }
+    .dashboard-sidebar ul li a {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.85rem;
+        justify-content: center;
+    }
+    .dashboard-sidebar ul li a i {
+        margin-right: 6px;
+    }
+}
+
+@media (min-width: 768px) {
+    .border-end-md {
+        border-right: 1px solid #dee2e6 !important;
+    }
+}
+

@@ -67,10 +67,14 @@ class DocumentManager {
         $uploadDir = __DIR__ . '/../../uploads/' . $subFolder . '/';
         
         if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
+            mkdir($uploadDir, 0777, true);
         }
 
-        $destPath = $uploadDir . $safeName;
+        $resolvedDir = realpath($uploadDir);
+        if ($resolvedDir === false) {
+            throw new \RuntimeException("Upload directory does not exist: {$uploadDir}");
+        }
+        $destPath = $resolvedDir . DIRECTORY_SEPARATOR . $safeName;
 
         if (!move_uploaded_file($file['tmp_name'], $destPath)) {
             throw new \RuntimeException("Failed to move uploaded file to target destination.");

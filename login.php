@@ -78,7 +78,10 @@ require_once __DIR__ . '/includes/header.php';
                             <label class="form-label">Password</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
-                                <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                                <input type="password" name="password" id="passwordInput" class="form-control" placeholder="••••••••" required>
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
                             </div>
                         </div>
 
@@ -98,5 +101,30 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
 </section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var togglePassword = document.getElementById('togglePassword');
+    var passwordInput = document.getElementById('passwordInput');
+    
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function() {
+            var type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            var icon = this.querySelector('i');
+            if (icon) {
+                if (type === 'text') {
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            }
+        });
+    }
+});
+</script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

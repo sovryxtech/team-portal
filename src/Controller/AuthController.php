@@ -29,9 +29,12 @@ class AuthController {
         try {
             $pdo = get_db_connection();
             
-            // Fetch user details
-            $stmt = $pdo->prepare("SELECT id, username, password_hash, email, role_id, status FROM users WHERE username = :username OR email = :username LIMIT 1");
-            $stmt->execute(['username' => $username]);
+            // Fetch user details with distinct parameter names to support non-emulated prepared statements
+            $stmt = $pdo->prepare("SELECT id, username, password_hash, email, role_id, status FROM users WHERE username = :username OR email = :email LIMIT 1");
+            $stmt->execute([
+                'username' => $username,
+                'email'    => $username
+            ]);
             $user = $stmt->fetch();
 
             if (!$user) {

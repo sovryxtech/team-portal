@@ -7,3 +7,19 @@ Dear Alice Tester,
                             You can now log in to the portal using your credentials to view your Digital ID and upload files.
                             Best Regards,Sovryx Tech Team
 ---------------------------------------
+[2026-07-17 15:20:23] To: admin@sovryxtech.com.np | Subject: New Employee Registration Request Pending Approval
+Body:
+A new employee registration request has been submitted.
+                          Applicant Name: Waibhav Mehta
+                          Email: waibhavm@gmail.com
+                          Please log in to the HR Portal to approve or reject this applicant.
+---------------------------------------
+[2026-07-17 15:24:29] To: waibhavm@gmail.com | Subject: Welcome to Sovryx Tech Portal - Account Active
+Body:
+Dear Waibhav Mehta,
+                            We are pleased to inform you that your registration has been approved.
+                            Your Employee ID: EMP-2026-0035
+                            Login Username: waibhav_mehta
+                            You can now log in to the portal using your credentials to view your Digital ID and upload files.
+                            Best Regards,Sovryx Tech Team
+---------------------------------------

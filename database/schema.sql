@@ -1,185 +1,716 @@
--- Database Schema for Employee Management & Verification System
--- Compatible with MySQL 8.0+
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: localhost
+-- Generation Time: Jul 17, 2026 at 03:53 PM
+-- Server version: 10.4.28-MariaDB
+-- PHP Version: 8.2.4
 
-CREATE DATABASE IF NOT EXISTS `employee_portal` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `employee_portal`
+--
+
+DROP DATABASE IF EXISTS `employee_portal`;
+CREATE DATABASE `employee_portal` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `employee_portal`;
 
--- Disable Foreign Key Checks temporarily to recreate tables cleanly if needed
 SET FOREIGN_KEY_CHECKS = 0;
 
--- 1. companies table
-DROP TABLE IF EXISTS `companies`;
-CREATE TABLE `companies` (
-  `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  `name` VARCHAR(150) NOT NULL,
-  `logo` VARCHAR(255) DEFAULT NULL,
-  `address` VARCHAR(255) DEFAULT NULL,
-  `contact` VARCHAR(50) DEFAULT NULL,
-  `email_settings` TEXT DEFAULT NULL, -- JSON string for SMTP/mailer configuration
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 2. branches table
-DROP TABLE IF EXISTS `branches`;
-CREATE TABLE `branches` (
-  `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  `company_id` INT UNSIGNED NOT NULL,
-  `name` VARCHAR(100) NOT NULL,
-  `address` VARCHAR(255) DEFAULT NULL,
-  `contact` VARCHAR(50) DEFAULT NULL,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT `fk_branches_company` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  INDEX `idx_branches_company` (`company_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 3. departments table
-DROP TABLE IF EXISTS `departments`;
-CREATE TABLE `departments` (
-  `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  `branch_id` INT UNSIGNED NOT NULL,
-  `name` VARCHAR(100) NOT NULL,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT `fk_departments_branch` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  INDEX `idx_departments_branch` (`branch_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- --------------------------------------------------------
 
--- 4. designations table
-DROP TABLE IF EXISTS `designations`;
-CREATE TABLE `designations` (
-  `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  `department_id` INT UNSIGNED NOT NULL,
-  `title` VARCHAR(100) NOT NULL,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT `fk_designations_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  INDEX `idx_designations_department` (`department_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+--
+-- Table structure for table `activity_logs`
+--
 
--- 5. roles table
-DROP TABLE IF EXISTS `roles`;
-CREATE TABLE `roles` (
-  `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  `name` VARCHAR(50) NOT NULL UNIQUE,
-  `permissions` TEXT DEFAULT NULL -- JSON string for RBAC permissions
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 6. users table
-DROP TABLE IF EXISTS `users`;
-CREATE TABLE `users` (
-  `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  `role_id` INT UNSIGNED NOT NULL,
-  `username` VARCHAR(50) NOT NULL UNIQUE,
-  `password_hash` VARCHAR(255) NOT NULL,
-  `email` VARCHAR(100) NOT NULL UNIQUE,
-  `status` ENUM('Active', 'Inactive') DEFAULT 'Active',
-  `last_login` TIMESTAMP NULL DEFAULT NULL,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT `fk_users_role` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  INDEX `idx_users_role` (`role_id`),
-  INDEX `idx_users_username` (`username`),
-  INDEX `idx_users_email` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 7. employees table
-DROP TABLE IF EXISTS `employees`;
-CREATE TABLE `employees` (
-  `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  `user_id` INT UNSIGNED NOT NULL UNIQUE,
-  `employee_custom_id` VARCHAR(50) NOT NULL UNIQUE,
-  `company_id` INT UNSIGNED NOT NULL,
-  `branch_id` INT UNSIGNED NOT NULL,
-  `department_id` INT UNSIGNED NOT NULL,
-  `designation_id` INT UNSIGNED NOT NULL,
-  `employment_type` ENUM('Full-time', 'Part-time', 'Contract', 'Intern') DEFAULT 'Full-time',
-  `joining_date` DATE NOT NULL,
-  `employment_status` ENUM('Active', 'Suspended', 'Terminated', 'Resigned') DEFAULT 'Active',
-  CONSTRAINT `fk_employees_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_employees_company` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_employees_branch` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_employees_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_employees_designation` FOREIGN KEY (`designation_id`) REFERENCES `designations` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  INDEX `idx_employees_custom_id` (`employee_custom_id`),
-  INDEX `idx_employees_company` (`company_id`),
-  INDEX `idx_employees_branch` (`branch_id`),
-  INDEX `idx_employees_department` (`department_id`),
-  INDEX `idx_employees_designation` (`designation_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 8. employee_profiles table
-DROP TABLE IF EXISTS `employee_profiles`;
-CREATE TABLE `employee_profiles` (
-  `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  `employee_id` INT UNSIGNED NOT NULL UNIQUE,
-  `full_name` VARCHAR(150) NOT NULL,
-  `profile_photo` VARCHAR(255) DEFAULT NULL,
-  `dob` DATE DEFAULT NULL,
-  `gender` ENUM('Male', 'Female', 'Other') DEFAULT NULL,
-  `blood_group` VARCHAR(10) DEFAULT NULL,
-  `nationality` VARCHAR(100) DEFAULT NULL,
-  `marital_status` ENUM('Single', 'Married', 'Divorced', 'Widowed') DEFAULT 'Single',
-  `phone` VARCHAR(30) DEFAULT NULL,
-  `address` VARCHAR(255) DEFAULT NULL,
-  `emergency_contact` TEXT DEFAULT NULL, -- JSON string storing emergency contact name, relation, and phone
-  CONSTRAINT `fk_profiles_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 9. employee_documents table
-DROP TABLE IF EXISTS `employee_documents`;
-CREATE TABLE `employee_documents` (
-  `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  `employee_id` INT UNSIGNED NOT NULL,
-  `document_type` VARCHAR(100) NOT NULL, -- e.g. Citizenship, CV, Academic, Police Clearance
-  `file_path` VARCHAR(255) NOT NULL,
-  `status` ENUM('Pending', 'Verified', 'Rejected') DEFAULT 'Pending',
-  `verified_at` TIMESTAMP NULL DEFAULT NULL,
-  CONSTRAINT `fk_documents_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  INDEX `idx_documents_employee` (`employee_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 10. registration_requests table
-DROP TABLE IF EXISTS `registration_requests`;
-CREATE TABLE `registration_requests` (
-  `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  `form_data_json` TEXT NOT NULL, -- JSON containing all registration details
-  `file_paths_json` TEXT NOT NULL, -- JSON containing paths of uploaded documents
-  `status` ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
-  `rejection_reason` TEXT DEFAULT NULL,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 11. verification_logs table
-DROP TABLE IF EXISTS `verification_logs`;
-CREATE TABLE `verification_logs` (
-  `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  `employee_id` INT UNSIGNED NOT NULL,
-  `scanned_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `ip_address` VARCHAR(45) DEFAULT NULL,
-  `user_agent` VARCHAR(255) DEFAULT NULL,
-  CONSTRAINT `fk_verification_logs_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  INDEX `idx_verif_logs_employee` (`employee_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 12. login_logs table
-DROP TABLE IF EXISTS `login_logs`;
-CREATE TABLE `login_logs` (
-  `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  `user_id` INT UNSIGNED NOT NULL,
-  `ip_address` VARCHAR(45) DEFAULT NULL,
-  `user_agent` VARCHAR(255) DEFAULT NULL,
-  `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT `fk_login_logs_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  INDEX `idx_login_logs_user` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 13. activity_logs table
 DROP TABLE IF EXISTS `activity_logs`;
 CREATE TABLE `activity_logs` (
-  `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  `user_id` INT UNSIGNED DEFAULT NULL, -- Nullable to allow logging visitor or system actions
-  `action` VARCHAR(150) NOT NULL,
-  `details` TEXT DEFAULT NULL,
-  `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT `fk_activity_logs_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  INDEX `idx_activity_logs_user` (`user_id`)
+  `id` int(10) UNSIGNED NOT NULL,
+  `user_id` int(10) UNSIGNED DEFAULT NULL,
+  `action` varchar(150) NOT NULL,
+  `details` text DEFAULT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `activity_logs`
+--
+
+INSERT INTO `activity_logs` (`id`, `user_id`, `action`, `details`, `timestamp`) VALUES
+(1, 1, 'Approved registration request', 'Approved Request ID: 1, Assigned Employee ID: EMP-2026-0002', '2026-07-17 12:26:46'),
+(2, 2, 'User login', 'Successfully logged in', '2026-07-17 12:53:45'),
+(3, 2, 'User logout', 'Successfully logged out', '2026-07-17 12:55:50'),
+(4, 1, 'User login', 'Successfully logged in', '2026-07-17 12:56:37'),
+(5, 1, 'User logout', 'Successfully logged out', '2026-07-17 13:01:36'),
+(6, NULL, 'Employee registration request submitted', 'Applicant Name: Waibhav Mehta, Email: waibhavm@gmail.com', '2026-07-17 13:20:23'),
+(7, 1, 'User login', 'Successfully logged in', '2026-07-17 13:20:47'),
+(8, 1, 'User logout', 'Successfully logged out', '2026-07-17 13:22:19'),
+(9, 1, 'User login', 'Successfully logged in', '2026-07-17 13:23:31'),
+(10, 1, 'Approved registration request', 'Approved Request ID: 2, Assigned Employee ID: EMP-2026-0035', '2026-07-17 13:24:29'),
+(11, 1, 'User logout', 'Successfully logged out', '2026-07-17 13:25:04'),
+(12, 4, 'User login', 'Successfully logged in', '2026-07-17 13:25:13'),
+(13, 4, 'User logout', 'Successfully logged out', '2026-07-17 13:28:30'),
+(14, 1, 'User login', 'Successfully logged in', '2026-07-17 13:28:44'),
+(15, 1, 'User logout', 'Successfully logged out', '2026-07-17 13:52:30');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `branches`
+--
+
+DROP TABLE IF EXISTS `branches`;
+CREATE TABLE `branches` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `company_id` int(10) UNSIGNED NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `contact` varchar(50) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `branches`
+--
+
+INSERT INTO `branches` (`id`, `company_id`, `name`, `address`, `contact`, `created_at`) VALUES
+(1, 1, 'Kathmandu HQ', 'Kathmandu, Nepal', '+977-1-4400000', '2026-07-17 12:21:20');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `careers`
+--
+
+DROP TABLE IF EXISTS `careers`;
+CREATE TABLE `careers` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `title` varchar(150) NOT NULL,
+  `department_id` int(10) UNSIGNED NOT NULL,
+  `branch_id` int(10) UNSIGNED NOT NULL,
+  `type` enum('Full-time','Part-time','Contract','Intern') DEFAULT 'Full-time',
+  `status` enum('Active','Closed') DEFAULT 'Active',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `careers`
+--
+
+INSERT INTO `careers` (`id`, `title`, `department_id`, `branch_id`, `type`, `status`, `created_at`) VALUES
+(1, 'Senior Web Developer', 1, 1, 'Full-time', 'Active', '2026-07-17 13:36:01'),
+(2, 'UI/UX Designer', 3, 1, 'Full-time', 'Active', '2026-07-17 13:36:01');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `companies`
+--
+
+DROP TABLE IF EXISTS `companies`;
+CREATE TABLE `companies` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `logo` varchar(255) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `contact` varchar(50) DEFAULT NULL,
+  `email_settings` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `companies`
+--
+
+INSERT INTO `companies` (`id`, `name`, `logo`, `address`, `contact`, `email_settings`, `created_at`) VALUES
+(1, 'Sovryx Tech', '/assets/images/logo.png', 'Kathmandu, Nepal', '+977-1-4400000', '{\"smtp_host\":\"sandbox.smtp.mailtrap.io\",\"smtp_port\":2525,\"smtp_user\":\"placeholder_user\",\"smtp_pass\":\"placeholder_pass\",\"smtp_secure\":\"tls\",\"from_email\":\"noreply@sovryxtech.com.np\",\"from_name\":\"Sovryx Tech HR System\"}', '2026-07-17 12:21:20');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `contact_messages`
+--
+
+DROP TABLE IF EXISTS `contact_messages`;
+CREATE TABLE `contact_messages` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `email` varchar(150) NOT NULL,
+  `subject` varchar(255) NOT NULL,
+  `message` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `contact_messages`
+--
+
+INSERT INTO `contact_messages` (`id`, `name`, `email`, `subject`, `message`, `created_at`) VALUES
+(1, 'Alice Tester', 'alice@test.com', 'Registration Query', 'Hello, when will my profile registration request be reviewed? Thanks!', '2026-07-17 13:37:26'),
+(2, 'John Doe', 'john.doe@sovryxtech.com.np', 'ID Card Issue', 'Hi Admin, I noticed my profile photo is missing from my digital ID card. Can you check?', '2026-07-17 13:37:26');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `departments`
+--
+
+DROP TABLE IF EXISTS `departments`;
+CREATE TABLE `departments` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `branch_id` int(10) UNSIGNED NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `departments`
+--
+
+INSERT INTO `departments` (`id`, `branch_id`, `name`, `created_at`) VALUES
+(1, 1, 'Engineering', '2026-07-17 12:21:20'),
+(2, 1, 'Human Resources', '2026-07-17 12:21:20'),
+(3, 1, 'Design & Creative', '2026-07-17 12:21:20');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `designations`
+--
+
+DROP TABLE IF EXISTS `designations`;
+CREATE TABLE `designations` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `department_id` int(10) UNSIGNED NOT NULL,
+  `title` varchar(100) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `designations`
+--
+
+INSERT INTO `designations` (`id`, `department_id`, `title`, `created_at`) VALUES
+(1, 1, 'Senior Web Developer', '2026-07-17 12:21:20'),
+(2, 1, 'Associate Software Engineer', '2026-07-17 12:21:20'),
+(3, 2, 'HR Operations Specialist', '2026-07-17 12:21:20'),
+(4, 3, 'UI/UX Designer', '2026-07-17 12:21:20');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `employees`
+--
+
+DROP TABLE IF EXISTS `employees`;
+CREATE TABLE `employees` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `user_id` int(10) UNSIGNED NOT NULL,
+  `employee_custom_id` varchar(50) NOT NULL,
+  `company_id` int(10) UNSIGNED NOT NULL,
+  `branch_id` int(10) UNSIGNED NOT NULL,
+  `department_id` int(10) UNSIGNED NOT NULL,
+  `designation_id` int(10) UNSIGNED NOT NULL,
+  `employment_type` enum('Full-time','Part-time','Contract','Intern') DEFAULT 'Full-time',
+  `joining_date` date NOT NULL,
+  `employment_status` enum('Active','Suspended','Terminated','Resigned') DEFAULT 'Active'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `employees`
+--
+
+INSERT INTO `employees` (`id`, `user_id`, `employee_custom_id`, `company_id`, `branch_id`, `department_id`, `designation_id`, `employment_type`, `joining_date`, `employment_status`) VALUES
+(1, 2, 'EMP-2026-0001', 1, 1, 1, 1, 'Full-time', '2026-01-10', 'Active'),
+(2, 3, 'EMP-2026-0002', 1, 1, 1, 1, 'Full-time', '2026-07-17', 'Active'),
+(3, 4, 'EMP-2026-0035', 1, 1, 1, 1, 'Full-time', '2026-07-17', 'Active');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `employee_documents`
+--
+
+DROP TABLE IF EXISTS `employee_documents`;
+CREATE TABLE `employee_documents` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `employee_id` int(10) UNSIGNED NOT NULL,
+  `document_type` varchar(100) NOT NULL,
+  `file_path` varchar(255) NOT NULL,
+  `status` enum('Pending','Verified','Rejected') DEFAULT 'Pending',
+  `verified_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `employee_documents`
+--
+
+INSERT INTO `employee_documents` (`id`, `employee_id`, `document_type`, `file_path`, `status`, `verified_at`) VALUES
+(1, 2, 'Citizenship', 'uploads/documents/test_cit.pdf', 'Verified', '2026-07-17 12:26:46'),
+(2, 2, 'Cv', 'uploads/documents/test_cv.pdf', 'Verified', '2026-07-17 12:26:46'),
+(3, 2, 'Certificates', 'uploads/documents/test_cert.pdf', 'Verified', '2026-07-17 12:26:46'),
+(4, 2, 'Police Clearance', 'uploads/documents/test_police.pdf', 'Verified', '2026-07-17 12:26:46'),
+(5, 3, 'Citizenship', 'uploads/documents/documents_6a5a2c177b97b0.72037094_ecb66733e8c8eb96.pdf', 'Verified', '2026-07-17 13:24:29'),
+(6, 3, 'Cv', 'uploads/documents/documents_6a5a2c177c8268.08797514_adecd57ed08bb7f8.pdf', 'Verified', '2026-07-17 13:24:29'),
+(7, 3, 'Certificates', 'uploads/documents/documents_6a5a2c177cc589.01053207_1a21e664ccb56be1.pdf', 'Verified', '2026-07-17 13:24:29'),
+(8, 3, 'Police Clearance', 'uploads/documents/documents_6a5a2c177ce885.51913229_b3575284bfa953e9.pdf', 'Verified', '2026-07-17 13:24:29');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `employee_profiles`
+--
+
+DROP TABLE IF EXISTS `employee_profiles`;
+CREATE TABLE `employee_profiles` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `employee_id` int(10) UNSIGNED NOT NULL,
+  `full_name` varchar(150) NOT NULL,
+  `profile_photo` varchar(255) DEFAULT NULL,
+  `dob` date DEFAULT NULL,
+  `gender` enum('Male','Female','Other') DEFAULT NULL,
+  `blood_group` varchar(10) DEFAULT NULL,
+  `nationality` varchar(100) DEFAULT NULL,
+  `marital_status` enum('Single','Married','Divorced','Widowed') DEFAULT 'Single',
+  `phone` varchar(30) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `emergency_contact` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `employee_profiles`
+--
+
+INSERT INTO `employee_profiles` (`id`, `employee_id`, `full_name`, `profile_photo`, `dob`, `gender`, `blood_group`, `nationality`, `marital_status`, `phone`, `address`, `emergency_contact`) VALUES
+(1, 1, 'John Doe', NULL, '1995-05-15', 'Male', 'O+', 'Nepali', 'Single', '+977-9841234567', 'Baneshwor, Kathmandu', '{\"name\":\"Jane Doe\",\"relation\":\"Sister\",\"phone\":\"+977-9841234568\"}'),
+(2, 2, 'Alice Tester', 'uploads/profiles/test_photo.jpg', '1998-08-20', 'Female', 'A-', 'Nepali', 'Single', '+977-9851122334', 'Patan, Lalitpur', '{\"name\":\"Bob Tester\",\"relation\":\"Father\",\"phone\":\"+977-9851122335\"}'),
+(3, 3, 'Waibhav Mehta', 'uploads/profiles/profiles_6a5a2c177a0f88.40969187_75a10eb6bb8416e3.png', '2065-09-24', 'Male', 'O+', 'Nepali', 'Single', '+9779768811191', 'Inurawa,Sunsari', '{\"name\":\"Suresh Mehta\",\"relation\":\"Father\",\"phone\":\"9842434993\"}');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `login_logs`
+--
+
+DROP TABLE IF EXISTS `login_logs`;
+CREATE TABLE `login_logs` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `user_id` int(10) UNSIGNED NOT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` varchar(255) DEFAULT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `login_logs`
+--
+
+INSERT INTO `login_logs` (`id`, `user_id`, `ip_address`, `user_agent`, `timestamp`) VALUES
+(1, 2, '::1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36', '2026-07-17 12:53:45'),
+(2, 1, '::1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36', '2026-07-17 12:56:37'),
+(3, 1, '::1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36', '2026-07-17 13:20:47'),
+(4, 1, '::1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36', '2026-07-17 13:23:31'),
+(5, 4, '::1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36', '2026-07-17 13:25:13'),
+(6, 1, '::1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36', '2026-07-17 13:28:44');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `registration_requests`
+--
+
+DROP TABLE IF EXISTS `registration_requests`;
+CREATE TABLE `registration_requests` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `form_data_json` text NOT NULL,
+  `file_paths_json` text NOT NULL,
+  `status` enum('Pending','Approved','Rejected') DEFAULT 'Pending',
+  `rejection_reason` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `registration_requests`
+--
+
+INSERT INTO `registration_requests` (`id`, `form_data_json`, `file_paths_json`, `status`, `rejection_reason`, `created_at`) VALUES
+(1, '{\"full_name\":\"Alice Tester\",\"dob\":\"1998-08-20\",\"gender\":\"Female\",\"blood_group\":\"A-\",\"nationality\":\"Nepali\",\"phone\":\"+977-9851122334\",\"email\":\"alice@test.com\",\"address\":\"Patan, Lalitpur\",\"emergency_name\":\"Bob Tester\",\"emergency_relation\":\"Father\",\"emergency_phone\":\"+977-9851122335\",\"username\":\"alice.tester\",\"password_hash\":\"$2y$10$f5rw8Dn2G07H1otFkLOw3.zUW6BADgNg8fNv7XVh9xltNVQSTxGSu\"}', '{\"profile_photo\":\"uploads\\/profiles\\/test_photo.jpg\",\"citizenship\":\"uploads\\/documents\\/test_cit.pdf\",\"cv\":\"uploads\\/documents\\/test_cv.pdf\",\"certificates\":\"uploads\\/documents\\/test_cert.pdf\",\"police_clearance\":\"uploads\\/documents\\/test_police.pdf\"}', 'Approved', NULL, '2026-07-17 12:26:46'),
+(2, '{\"csrf_token\":\"32432658fef680a61ee01056dbf78b58dd58b06d78d9b2defe6cdd5e4097bef7\",\"full_name\":\"Waibhav Mehta\",\"dob\":\"2065-09-24\",\"gender\":\"Male\",\"blood_group\":\"O+\",\"nationality\":\"Nepali\",\"marital_status\":\"Single\",\"phone\":\"+9779768811191\",\"email\":\"waibhavm@gmail.com\",\"address\":\"Inurawa,Sunsari\",\"emergency_name\":\"Suresh Mehta\",\"emergency_relation\":\"Father\",\"emergency_phone\":\"9842434993\",\"highest_degree\":\"\",\"institution\":\"\",\"experience_summary\":\"\",\"username\":\"waibhav_mehta\",\"password_hash\":\"$2y$10$\\/2iPg7yOXJaGSgMGz9HXNeg9ay8Iv7bzKyhrwR2WM.lpGEkDHMr8C\"}', '{\"profile_photo\":\"uploads\\/profiles\\/profiles_6a5a2c177a0f88.40969187_75a10eb6bb8416e3.png\",\"citizenship\":\"uploads\\/documents\\/documents_6a5a2c177b97b0.72037094_ecb66733e8c8eb96.pdf\",\"cv\":\"uploads\\/documents\\/documents_6a5a2c177c8268.08797514_adecd57ed08bb7f8.pdf\",\"certificates\":\"uploads\\/documents\\/documents_6a5a2c177cc589.01053207_1a21e664ccb56be1.pdf\",\"police_clearance\":\"uploads\\/documents\\/documents_6a5a2c177ce885.51913229_b3575284bfa953e9.pdf\"}', 'Approved', NULL, '2026-07-17 13:20:23');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `roles`
+--
+
+DROP TABLE IF EXISTS `roles`;
+CREATE TABLE `roles` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `permissions` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `roles`
+--
+
+INSERT INTO `roles` (`id`, `name`, `permissions`) VALUES
+(1, 'Super Admin', '{\"all\":true}'),
+(2, 'Admin/HR', '{\"approve_registration\":true,\"manage_employees\":true,\"manage_organization\":true,\"view_logs\":true}'),
+(3, 'Employee', '{\"view_profile\":true,\"upload_documents\":true,\"download_id\":true}');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE `users` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `role_id` int(10) UNSIGNED NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `password_hash` varchar(255) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `status` enum('Active','Inactive') DEFAULT 'Active',
+  `last_login` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `role_id`, `username`, `password_hash`, `email`, `status`, `last_login`, `created_at`) VALUES
+(1, 1, 'admin', '$2y$10$XLeLi7w4OnFMcXTL1fxyUOl59pV6F6nKFEZg5Nbw/SOoKGS/RHN6m', 'admin@sovryxtech.com.np', 'Active', '2026-07-17 13:28:44', '2026-07-17 12:21:20'),
+(2, 3, 'john.doe', '$2y$10$8/DiF5Wjf1tssaToQe4KJuEDYProAtCYDBYUFGUYabVW/E0DPK.Ne', 'john.doe@sovryxtech.com.np', 'Active', '2026-07-17 12:53:45', '2026-07-17 12:21:20'),
+(3, 3, 'alice.tester', '$2y$10$f5rw8Dn2G07H1otFkLOw3.zUW6BADgNg8fNv7XVh9xltNVQSTxGSu', 'alice@test.com', 'Active', NULL, '2026-07-17 12:26:46'),
+(4, 3, 'waibhav_mehta', '$2y$10$/2iPg7yOXJaGSgMGz9HXNeg9ay8Iv7bzKyhrwR2WM.lpGEkDHMr8C', 'waibhavm@gmail.com', 'Active', '2026-07-17 13:25:13', '2026-07-17 13:24:29');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `verification_logs`
+--
+
+DROP TABLE IF EXISTS `verification_logs`;
+CREATE TABLE `verification_logs` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `employee_id` int(10) UNSIGNED NOT NULL,
+  `scanned_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `verification_logs`
+--
+
+INSERT INTO `verification_logs` (`id`, `employee_id`, `scanned_at`, `ip_address`, `user_agent`) VALUES
+(1, 1, '2026-07-17 12:55:06', '::1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36'),
+(2, 3, '2026-07-17 13:26:43', '::1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `activity_logs`
+--
+ALTER TABLE `activity_logs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_activity_logs_user` (`user_id`);
+
+--
+-- Indexes for table `branches`
+--
+ALTER TABLE `branches`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_branches_company` (`company_id`);
+
+--
+-- Indexes for table `careers`
+--
+ALTER TABLE `careers`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_careers_department` (`department_id`),
+  ADD KEY `idx_careers_branch` (`branch_id`);
+
+--
+-- Indexes for table `companies`
+--
+ALTER TABLE `companies`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `contact_messages`
+--
+ALTER TABLE `contact_messages`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `departments`
+--
+ALTER TABLE `departments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_departments_branch` (`branch_id`);
+
+--
+-- Indexes for table `designations`
+--
+ALTER TABLE `designations`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_designations_department` (`department_id`);
+
+--
+-- Indexes for table `employees`
+--
+ALTER TABLE `employees`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `user_id` (`user_id`),
+  ADD UNIQUE KEY `employee_custom_id` (`employee_custom_id`),
+  ADD KEY `idx_employees_custom_id` (`employee_custom_id`),
+  ADD KEY `idx_employees_company` (`company_id`),
+  ADD KEY `idx_employees_branch` (`branch_id`),
+  ADD KEY `idx_employees_department` (`department_id`),
+  ADD KEY `idx_employees_designation` (`designation_id`);
+
+--
+-- Indexes for table `employee_documents`
+--
+ALTER TABLE `employee_documents`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_documents_employee` (`employee_id`);
+
+--
+-- Indexes for table `employee_profiles`
+--
+ALTER TABLE `employee_profiles`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `employee_id` (`employee_id`);
+
+--
+-- Indexes for table `login_logs`
+--
+ALTER TABLE `login_logs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_login_logs_user` (`user_id`);
+
+--
+-- Indexes for table `registration_requests`
+--
+ALTER TABLE `registration_requests`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `roles`
+--
+ALTER TABLE `roles`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `name` (`name`);
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `username` (`username`),
+  ADD UNIQUE KEY `email` (`email`),
+  ADD KEY `idx_users_role` (`role_id`),
+  ADD KEY `idx_users_username` (`username`),
+  ADD KEY `idx_users_email` (`email`);
+
+--
+-- Indexes for table `verification_logs`
+--
+ALTER TABLE `verification_logs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_verif_logs_employee` (`employee_id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `activity_logs`
+--
+ALTER TABLE `activity_logs`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+--
+-- AUTO_INCREMENT for table `branches`
+--
+ALTER TABLE `branches`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `careers`
+--
+ALTER TABLE `careers`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `companies`
+--
+ALTER TABLE `companies`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `contact_messages`
+--
+ALTER TABLE `contact_messages`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `departments`
+--
+ALTER TABLE `departments`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `designations`
+--
+ALTER TABLE `designations`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `employees`
+--
+ALTER TABLE `employees`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `employee_documents`
+--
+ALTER TABLE `employee_documents`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `employee_profiles`
+--
+ALTER TABLE `employee_profiles`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `login_logs`
+--
+ALTER TABLE `login_logs`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `registration_requests`
+--
+ALTER TABLE `registration_requests`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `roles`
+--
+ALTER TABLE `roles`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `verification_logs`
+--
+ALTER TABLE `verification_logs`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `activity_logs`
+--
+ALTER TABLE `activity_logs`
+  ADD CONSTRAINT `fk_activity_logs_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `branches`
+--
+ALTER TABLE `branches`
+  ADD CONSTRAINT `fk_branches_company` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `careers`
+--
+ALTER TABLE `careers`
+  ADD CONSTRAINT `fk_careers_branch` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_careers_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `departments`
+--
+ALTER TABLE `departments`
+  ADD CONSTRAINT `fk_departments_branch` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `designations`
+--
+ALTER TABLE `designations`
+  ADD CONSTRAINT `fk_designations_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `employees`
+--
+ALTER TABLE `employees`
+  ADD CONSTRAINT `fk_employees_branch` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_employees_company` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_employees_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_employees_designation` FOREIGN KEY (`designation_id`) REFERENCES `designations` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_employees_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `employee_documents`
+--
+ALTER TABLE `employee_documents`
+  ADD CONSTRAINT `fk_documents_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `employee_profiles`
+--
+ALTER TABLE `employee_profiles`
+  ADD CONSTRAINT `fk_profiles_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `login_logs`
+--
+ALTER TABLE `login_logs`
+  ADD CONSTRAINT `fk_login_logs_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `users`
+--
+ALTER TABLE `users`
+  ADD CONSTRAINT `fk_users_role` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON UPDATE CASCADE;
+
+--
+-- Constraints for table `verification_logs`
+--
+ALTER TABLE `verification_logs`
+  ADD CONSTRAINT `fk_verification_logs_employee` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
 SET FOREIGN_KEY_CHECKS = 1;

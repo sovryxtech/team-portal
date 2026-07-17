@@ -35,23 +35,24 @@ require_once __DIR__ . '/includes/header.php';
             <div class="col-lg-7">
                 <div class="p-4 bg-light rounded-4 shadow-sm border">
                     <h4 class="text-primary mb-3">Send Us a Message</h4>
-                    <form id="contactForm" onsubmit="event.preventDefault(); Swal.fire('Thank you', 'Your message has been sent to HR support.', 'success');">
+                    <form id="contactForm" action="<?= get_base_url() ?>/api/contact_submit.php" method="POST">
+                        <?= csrf_field() ?>
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">Name</label>
-                                <input type="text" class="form-control" required>
+                                <input type="text" name="name" class="form-control" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Email</label>
-                                <input type="email" class="form-control" required>
+                                <input type="email" name="email" class="form-control" required>
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Subject</label>
-                                <input type="text" class="form-control" required>
+                                <input type="text" name="subject" class="form-control" required>
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Message Text</label>
-                                <textarea class="form-control" rows="4" required></textarea>
+                                <textarea name="message" class="form-control" rows="4" required></textarea>
                             </div>
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary w-100 py-2">Submit Message</button>
@@ -63,5 +64,13 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
 </section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    setupAjaxForm('#contactForm', function() {
+        $('#contactForm')[0].reset();
+    });
+});
+</script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

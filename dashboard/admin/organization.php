@@ -12,6 +12,7 @@ $companies = $pdo->query("SELECT * FROM companies")->fetchAll();
 $branches = $pdo->query("SELECT b.*, c.name as company_name FROM branches b JOIN companies c ON b.company_id = c.id")->fetchAll();
 $departments = $pdo->query("SELECT d.*, b.name as branch_name FROM departments d JOIN branches b ON d.branch_id = b.id")->fetchAll();
 $designations = $pdo->query("SELECT ds.*, dp.name as department_name FROM designations ds JOIN departments dp ON ds.department_id = dp.id")->fetchAll();
+$careers = $pdo->query("SELECT c.*, d.name as dept_name, b.name as branch_name FROM careers c JOIN departments d ON c.department_id = d.id JOIN branches b ON c.branch_id = b.id ORDER BY c.id DESC")->fetchAll();
 ?>
 
 <!-- Tab Selector Navigation -->
@@ -27,6 +28,9 @@ $designations = $pdo->query("SELECT ds.*, dp.name as department_name FROM design
     </li>
     <li class="nav-item" role="presentation">
         <button class="nav-link px-4 py-2 font-weight-bold" id="designations-tab" data-bs-toggle="tab" data-bs-target="#designations-pane" type="button" role="tab"><i class="fa-solid fa-award me-2"></i>Designations</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link px-4 py-2 font-weight-bold" id="careers-tab" data-bs-toggle="tab" data-bs-target="#careers-pane" type="button" role="tab"><i class="fa-solid fa-briefcase me-2"></i>Careers Opportunities</button>
     </li>
 </ul>
 
@@ -157,6 +161,44 @@ $designations = $pdo->query("SELECT ds.*, dp.name as department_name FROM design
                                 <td><?= htmlspecialchars($desig['department_name']) ?></td>
                                 <td class="text-end">
                                     <button class="btn btn-outline-danger btn-sm delete-org-btn" data-type="designation" data-id="<?= $desig['id'] ?>"><i class="fa-solid fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Careers Pane -->
+    <div class="tab-pane fade" id="careers-pane" role="tabpanel" tabindex="0">
+        <div class="card-custom p-4 bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="text-primary mb-0">Careers List</h5>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#careerModal"><i class="fa-solid fa-plus me-1"></i>Add Career Opportunity</button>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Job Title</th>
+                            <th>Department</th>
+                            <th>Branch Location</th>
+                            <th>Employment Type</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($careers as $car): ?>
+                            <tr>
+                                <td><strong><?= htmlspecialchars($car['title']) ?></strong></td>
+                                <td><?= htmlspecialchars($car['dept_name']) ?></td>
+                                <td><?= htmlspecialchars($car['branch_name']) ?></td>
+                                <td><?= htmlspecialchars($car['type']) ?></td>
+                                <td><span class="badge bg-success"><?= htmlspecialchars($car['status']) ?></span></td>
+                                <td class="text-end">
+                                    <button class="btn btn-outline-danger btn-sm delete-org-btn" data-type="career" data-id="<?= $car['id'] ?>"><i class="fa-solid fa-trash"></i></button>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -311,12 +353,64 @@ $designations = $pdo->query("SELECT ds.*, dp.name as department_name FROM design
     </div>
 </div>
 
+<!-- Career Modal -->
+<div class="modal fade" id="careerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <form id="careerForm" action="<?= get_base_url() ?>/api/admin_actions.php" method="POST">
+                <?= csrf_field() ?>
+                <input type="hidden" name="action" value="career_create">
+                <div class="modal-header bg-primary text-white border-0">
+                    <h5 class="modal-title font-weight-bold">Create Career Opportunity</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label">Job Title</label>
+                        <input type="text" name="title" class="form-control" placeholder="e.g. Senior Software Engineer" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Office Branch</label>
+                        <select name="branch_id" class="form-select" required>
+                            <?php foreach ($branches as $br): ?>
+                                <option value="<?= $br['id'] ?>"><?= htmlspecialchars($br['name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Corporate Department</label>
+                        <select name="department_id" class="form-select" required>
+                            <?php foreach ($departments as $dept): ?>
+                                <option value="<?= $dept['id'] ?>"><?= htmlspecialchars($dept['name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Employment Type</label>
+                        <select name="type" class="form-select" required>
+                            <option value="Full-time">Full-time</option>
+                            <option value="Part-time">Part-time</option>
+                            <option value="Contract">Contract</option>
+                            <option value="Intern">Intern</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-3 bg-light">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary px-4">Save Opportunity</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     setupAjaxForm('#companyForm', function(){ window.location.reload(); });
     setupAjaxForm('#branchForm', function(){ window.location.reload(); });
     setupAjaxForm('#departmentForm', function(){ window.location.reload(); });
     setupAjaxForm('#designationForm', function(){ window.location.reload(); });
+    setupAjaxForm('#careerForm', function(){ window.location.reload(); });
 
     // Handle delete operations
     $('.delete-org-btn').on('click', function() {

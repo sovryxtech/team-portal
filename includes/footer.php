@@ -1,12 +1,20 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/db_connection.php';
+$footerPdo = get_db_connection();
+$footerComp = $footerPdo->query("SELECT * FROM companies WHERE id = 1 LIMIT 1")->fetch();
+$compName = $footerComp['name'] ?? 'Sovryx Tech';
+$compAddress = $footerComp['address'] ?? 'Kathmandu, Nepal';
+$compContact = $footerComp['contact'] ?? '+977 1 4400000';
+$emailSettings = json_decode($footerComp['email_settings'] ?? '{}', true);
+$compEmail = $emailSettings['from_email'] ?? 'contact@sovryxtech.com.np';
 ?>
     <!-- Footer Section -->
     <footer class="text-white pt-5 pb-4" style="background-color: var(--dark-bg);">
         <div class="container text-md-start">
             <div class="row text-md-start">
                 <div class="col-md-4 col-lg-4 col-xl-4 mx-auto mt-3">
-                    <h5 class="text-uppercase mb-4 font-weight-bold" style="color: var(--secondary-color);">SOVRYX TECH</h5>
+                    <h5 class="text-uppercase mb-4 font-weight-bold" style="color: var(--secondary-color);"><?= htmlspecialchars($compName) ?></h5>
                     <p class="text-white-50">
                         A modern and robust system designed for secure employee record lifecycle management, digital identity issuance, and instant public verification.
                     </p>
@@ -20,9 +28,9 @@ declare(strict_types=1);
                 </div>
                 <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mt-3">
                     <h5 class="text-uppercase mb-4 font-weight-bold" style="color: var(--secondary-color);">Contact Info</h5>
-                    <p class="text-white-50"><i class="fas fa-home me-2"></i> Kathmandu, Nepal</p>
-                    <p class="text-white-50"><i class="fas fa-envelope me-2"></i> contact@sovryxtech.com.np</p>
-                    <p class="text-white-50"><i class="fas fa-phone me-2"></i> +977 1 4400000</p>
+                    <p class="text-white-50"><i class="fas fa-home me-2"></i> <?= htmlspecialchars($compAddress) ?></p>
+                    <p class="text-white-50"><i class="fas fa-envelope me-2"></i> <?= htmlspecialchars($compEmail) ?></p>
+                    <p class="text-white-50"><i class="fas fa-phone me-2"></i> <?= htmlspecialchars($compContact) ?></p>
                 </div>
             </div>
             <hr class="mb-4 bg-secondary">

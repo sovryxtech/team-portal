@@ -124,6 +124,14 @@ switch ($action) {
         echo json_encode($res);
         break;
 
+    case 'career_create':
+    case 'career_delete':
+        $adminController = new \Src\Controller\AdminController();
+        $subAction = explode('_', $action)[1];
+        $res = $adminController->manageCareer($subAction, $_POST);
+        echo json_encode($res);
+        break;
+
     default:
         echo json_encode(['success' => false, 'message' => 'Invalid action specifier.']);
         break;

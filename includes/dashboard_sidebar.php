@@ -53,6 +53,11 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
                     <i class="fa-solid fa-receipt"></i> System Audit Logs
                 </a>
             </li>
+            <li class="<?= $currentDir === 'admin' && $currentFile === 'messages.php' ? 'active' : '' ?>">
+                <a href="<?= get_base_url() ?>/dashboard/admin/messages.php">
+                    <i class="fa-solid fa-comments"></i> Support Messages
+                </a>
+            </li>
         <?php else: ?>
             <!-- Employee Navigation links -->
             <li class="<?= $currentDir === 'employee' && $currentFile === 'index.php' ? 'active' : '' ?>">

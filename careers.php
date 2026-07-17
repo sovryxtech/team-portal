@@ -2,6 +2,10 @@
 declare(strict_types=1);
 $pageTitle = "Careers at Sovryx Tech";
 require_once __DIR__ . '/includes/header.php';
+require_once __DIR__ . '/includes/db_connection.php';
+
+$pdo = get_db_connection();
+$careers = $pdo->query("SELECT c.*, d.name as dept_name, b.name as branch_name FROM careers c JOIN departments d ON c.department_id = d.id JOIN branches b ON c.branch_id = b.id WHERE c.status = 'Active' ORDER BY c.id DESC")->fetchAll();
 ?>
 
 <section class="py-5 bg-light">
@@ -13,27 +17,21 @@ require_once __DIR__ . '/includes/header.php';
 
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <!-- Job Card 1 -->
-                <div class="card-custom p-4 bg-white mb-3">
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <div>
-                            <h4 class="text-primary mb-1">Senior Web Developer</h4>
-                            <p class="text-muted small mb-0"><i class="fa-solid fa-map-pin me-1"></i> Kathmandu HQ | Full-Time</p>
+                <?php if (empty($careers)): ?>
+                    <div class="alert alert-info text-center rounded-3">Currently, there are no open positions. Please check back later!</div>
+                <?php else: ?>
+                    <?php foreach ($careers as $car): ?>
+                        <div class="card-custom p-4 bg-white mb-3">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                <div>
+                                    <h4 class="text-primary mb-1"><?= htmlspecialchars($car['title']) ?></h4>
+                                    <p class="text-muted small mb-0"><i class="fa-solid fa-map-pin me-1"></i> <?= htmlspecialchars($car['branch_name']) ?> (<?= htmlspecialchars($car['dept_name']) ?>) | <?= htmlspecialchars($car['type']) ?></p>
+                                </div>
+                                <a href="<?= get_base_url() ?>/register.php" class="btn btn-secondary-custom"><i class="fa-solid fa-user-pen me-2"></i>Apply & Register</a>
+                            </div>
                         </div>
-                        <a href="<?= get_base_url() ?>/register.php" class="btn btn-secondary-custom"><i class="fa-solid fa-user-pen me-2"></i>Apply & Register</a>
-                    </div>
-                </div>
-
-                <!-- Job Card 2 -->
-                <div class="card-custom p-4 bg-white mb-3">
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <div>
-                            <h4 class="text-primary mb-1">UI/UX Designer</h4>
-                            <p class="text-muted small mb-0"><i class="fa-solid fa-map-pin me-1"></i> Kathmandu HQ | Full-Time</p>
-                        </div>
-                        <a href="<?= get_base_url() ?>/register.php" class="btn btn-secondary-custom"><i class="fa-solid fa-user-pen me-2"></i>Apply & Register</a>
-                    </div>
-                </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>

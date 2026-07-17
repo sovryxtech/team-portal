@@ -89,6 +89,11 @@ class AdminController {
                 $stmt->execute(['id' => $data['id']]);
                 return ['success' => true, 'message' => 'Company deleted successfully.'];
             }
+        } catch (\PDOException $e) {
+            if ($e->getCode() === '23000' || (isset($e->errorInfo[1]) && $e->errorInfo[1] === 1451)) {
+                return ['success' => false, 'message' => 'Cannot delete this record because it is currently linked to one or more active employees. Please reassign the employees first.'];
+            }
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
         } catch (\Exception $e) {
             return ['success' => false, 'message' => $e->getMessage()];
         }
@@ -125,6 +130,11 @@ class AdminController {
                 $stmt->execute(['id' => $data['id']]);
                 return ['success' => true, 'message' => 'Branch deleted successfully.'];
             }
+        } catch (\PDOException $e) {
+            if ($e->getCode() === '23000' || (isset($e->errorInfo[1]) && $e->errorInfo[1] === 1451)) {
+                return ['success' => false, 'message' => 'Cannot delete this record because it is currently linked to one or more active employees. Please reassign the employees first.'];
+            }
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
         } catch (\Exception $e) {
             return ['success' => false, 'message' => $e->getMessage()];
         }
@@ -157,6 +167,11 @@ class AdminController {
                 $stmt->execute(['id' => $data['id']]);
                 return ['success' => true, 'message' => 'Department deleted successfully.'];
             }
+        } catch (\PDOException $e) {
+            if ($e->getCode() === '23000' || (isset($e->errorInfo[1]) && $e->errorInfo[1] === 1451)) {
+                return ['success' => false, 'message' => 'Cannot delete this record because it is currently linked to one or more active employees. Please reassign the employees first.'];
+            }
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
         } catch (\Exception $e) {
             return ['success' => false, 'message' => $e->getMessage()];
         }
@@ -188,6 +203,37 @@ class AdminController {
                 $stmt = $pdo->prepare("DELETE FROM designations WHERE id = :id");
                 $stmt->execute(['id' => $data['id']]);
                 return ['success' => true, 'message' => 'Designation deleted successfully.'];
+            }
+        } catch (\PDOException $e) {
+            if ($e->getCode() === '23000' || (isset($e->errorInfo[1]) && $e->errorInfo[1] === 1451)) {
+                return ['success' => false, 'message' => 'Cannot delete this record because it is currently linked to one or more active employees. Please reassign the employees first.'];
+            }
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+        } catch (\Exception $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+        return ['success' => false, 'message' => 'Invalid action'];
+    }
+
+    /**
+     * Manage Careers CRUD
+     */
+    public function manageCareer(string $action, array $data): array {
+        $pdo = get_db_connection();
+        try {
+            if ($action === 'create') {
+                $stmt = $pdo->prepare("INSERT INTO careers (title, department_id, branch_id, type, status) VALUES (:title, :department_id, :branch_id, :type, 'Active')");
+                $stmt->execute([
+                    'title'         => $data['title'],
+                    'department_id' => $data['department_id'],
+                    'branch_id'     => $data['branch_id'],
+                    'type'          => $data['type']
+                ]);
+                return ['success' => true, 'message' => 'Career opportunity created successfully.'];
+            } elseif ($action === 'delete') {
+                $stmt = $pdo->prepare("DELETE FROM careers WHERE id = :id");
+                $stmt->execute(['id' => $data['id']]);
+                return ['success' => true, 'message' => 'Career opportunity deleted successfully.'];
             }
         } catch (\Exception $e) {
             return ['success' => false, 'message' => $e->getMessage()];

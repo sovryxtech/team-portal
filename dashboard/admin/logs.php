@@ -7,6 +7,11 @@ require_once __DIR__ . '/../../includes/utils.php';
 
 $pdo = get_db_connection();
 
+// Cleanup old logs (older than 30 days)
+$pdo->exec("DELETE FROM activity_logs WHERE timestamp < NOW() - INTERVAL 30 DAY");
+$pdo->exec("DELETE FROM login_logs WHERE timestamp < NOW() - INTERVAL 30 DAY");
+$pdo->exec("DELETE FROM verification_logs WHERE scanned_at < NOW() - INTERVAL 30 DAY");
+
 // Fetch login logs
 $logins = $pdo->query("
     SELECT ll.*, u.username, u.email 

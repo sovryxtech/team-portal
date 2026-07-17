@@ -60,6 +60,14 @@ $careers = $pdo->query("SELECT c.*, d.name as dept_name, b.name as branch_name F
                                 <td><?= htmlspecialchars($comp['address'] ?? 'N/A') ?></td>
                                 <td><?= htmlspecialchars($comp['contact'] ?? 'N/A') ?></td>
                                 <td class="text-end">
+                                    <button class="btn btn-outline-primary btn-sm edit-org-btn" 
+                                            data-type="company" 
+                                            data-id="<?= $comp['id'] ?>"
+                                            data-name="<?= htmlspecialchars($comp['name']) ?>"
+                                            data-address="<?= htmlspecialchars($comp['address'] ?? '') ?>"
+                                            data-contact="<?= htmlspecialchars($comp['contact'] ?? '') ?>">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
                                     <button class="btn btn-outline-danger btn-sm delete-org-btn" data-type="company" data-id="<?= $comp['id'] ?>"><i class="fa-solid fa-trash"></i></button>
                                 </td>
                             </tr>
@@ -96,6 +104,15 @@ $careers = $pdo->query("SELECT c.*, d.name as dept_name, b.name as branch_name F
                                 <td><?= htmlspecialchars($br['address'] ?? 'N/A') ?></td>
                                 <td><?= htmlspecialchars($br['contact'] ?? 'N/A') ?></td>
                                 <td class="text-end">
+                                    <button class="btn btn-outline-primary btn-sm edit-org-btn" 
+                                            data-type="branch" 
+                                            data-id="<?= $br['id'] ?>"
+                                            data-company-id="<?= $br['company_id'] ?>"
+                                            data-name="<?= htmlspecialchars($br['name']) ?>"
+                                            data-address="<?= htmlspecialchars($br['address'] ?? '') ?>"
+                                            data-contact="<?= htmlspecialchars($br['contact'] ?? '') ?>">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
                                     <button class="btn btn-outline-danger btn-sm delete-org-btn" data-type="branch" data-id="<?= $br['id'] ?>"><i class="fa-solid fa-trash"></i></button>
                                 </td>
                             </tr>
@@ -128,6 +145,13 @@ $careers = $pdo->query("SELECT c.*, d.name as dept_name, b.name as branch_name F
                                 <td><strong><?= htmlspecialchars($dept['name']) ?></strong></td>
                                 <td><?= htmlspecialchars($dept['branch_name']) ?></td>
                                 <td class="text-end">
+                                    <button class="btn btn-outline-primary btn-sm edit-org-btn" 
+                                            data-type="department" 
+                                            data-id="<?= $dept['id'] ?>"
+                                            data-branch-id="<?= $dept['branch_id'] ?>"
+                                            data-name="<?= htmlspecialchars($dept['name']) ?>">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
                                     <button class="btn btn-outline-danger btn-sm delete-org-btn" data-type="department" data-id="<?= $dept['id'] ?>"><i class="fa-solid fa-trash"></i></button>
                                 </td>
                             </tr>
@@ -160,6 +184,13 @@ $careers = $pdo->query("SELECT c.*, d.name as dept_name, b.name as branch_name F
                                 <td><strong><?= htmlspecialchars($desig['title']) ?></strong></td>
                                 <td><?= htmlspecialchars($desig['department_name']) ?></td>
                                 <td class="text-end">
+                                    <button class="btn btn-outline-primary btn-sm edit-org-btn" 
+                                            data-type="designation" 
+                                            data-id="<?= $desig['id'] ?>"
+                                            data-department-id="<?= $desig['department_id'] ?>"
+                                            data-title="<?= htmlspecialchars($desig['title']) ?>">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
                                     <button class="btn btn-outline-danger btn-sm delete-org-btn" data-type="designation" data-id="<?= $desig['id'] ?>"><i class="fa-solid fa-trash"></i></button>
                                 </td>
                             </tr>
@@ -198,6 +229,16 @@ $careers = $pdo->query("SELECT c.*, d.name as dept_name, b.name as branch_name F
                                 <td><?= htmlspecialchars($car['type']) ?></td>
                                 <td><span class="badge bg-success"><?= htmlspecialchars($car['status']) ?></span></td>
                                 <td class="text-end">
+                                    <button class="btn btn-outline-primary btn-sm edit-org-btn" 
+                                            data-type="career" 
+                                            data-id="<?= $car['id'] ?>"
+                                            data-title="<?= htmlspecialchars($car['title']) ?>"
+                                            data-department-id="<?= $car['department_id'] ?>"
+                                            data-branch-id="<?= $car['branch_id'] ?>"
+                                            data-type-val="<?= $car['type'] ?>"
+                                            data-status="<?= $car['status'] ?>">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
                                     <button class="btn btn-outline-danger btn-sm delete-org-btn" data-type="career" data-id="<?= $car['id'] ?>"><i class="fa-solid fa-trash"></i></button>
                                 </td>
                             </tr>
@@ -215,7 +256,8 @@ $careers = $pdo->query("SELECT c.*, d.name as dept_name, b.name as branch_name F
         <div class="modal-content rounded-4 border-0 shadow">
             <form id="companyForm" action="<?= get_base_url() ?>/api/admin_actions.php" method="POST">
                 <?= csrf_field() ?>
-                <input type="hidden" name="action" value="company_create">
+                <input type="hidden" name="action" id="company_action" value="company_create">
+                <input type="hidden" name="id" id="company_id" value="">
                 <div class="modal-header bg-primary text-white border-0">
                     <h5 class="modal-title font-weight-bold">Create Company</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -249,7 +291,8 @@ $careers = $pdo->query("SELECT c.*, d.name as dept_name, b.name as branch_name F
         <div class="modal-content rounded-4 border-0 shadow">
             <form id="branchForm" action="<?= get_base_url() ?>/api/admin_actions.php" method="POST">
                 <?= csrf_field() ?>
-                <input type="hidden" name="action" value="branch_create">
+                <input type="hidden" name="action" id="branch_action" value="branch_create">
+                <input type="hidden" name="id" id="branch_id" value="">
                 <div class="modal-header bg-primary text-white border-0">
                     <h5 class="modal-title font-weight-bold">Create Branch</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -291,7 +334,8 @@ $careers = $pdo->query("SELECT c.*, d.name as dept_name, b.name as branch_name F
         <div class="modal-content rounded-4 border-0 shadow">
             <form id="departmentForm" action="<?= get_base_url() ?>/api/admin_actions.php" method="POST">
                 <?= csrf_field() ?>
-                <input type="hidden" name="action" value="department_create">
+                <input type="hidden" name="action" id="department_action" value="department_create">
+                <input type="hidden" name="id" id="department_id" value="">
                 <div class="modal-header bg-primary text-white border-0">
                     <h5 class="modal-title font-weight-bold">Create Department</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -325,7 +369,8 @@ $careers = $pdo->query("SELECT c.*, d.name as dept_name, b.name as branch_name F
         <div class="modal-content rounded-4 border-0 shadow">
             <form id="designationForm" action="<?= get_base_url() ?>/api/admin_actions.php" method="POST">
                 <?= csrf_field() ?>
-                <input type="hidden" name="action" value="designation_create">
+                <input type="hidden" name="action" id="designation_action" value="designation_create">
+                <input type="hidden" name="id" id="designation_id" value="">
                 <div class="modal-header bg-primary text-white border-0">
                     <h5 class="modal-title font-weight-bold">Create Designation</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -359,7 +404,8 @@ $careers = $pdo->query("SELECT c.*, d.name as dept_name, b.name as branch_name F
         <div class="modal-content rounded-4 border-0 shadow">
             <form id="careerForm" action="<?= get_base_url() ?>/api/admin_actions.php" method="POST">
                 <?= csrf_field() ?>
-                <input type="hidden" name="action" value="career_create">
+                <input type="hidden" name="action" id="career_action" value="career_create">
+                <input type="hidden" name="id" id="career_id" value="">
                 <div class="modal-header bg-primary text-white border-0">
                     <h5 class="modal-title font-weight-bold">Create Career Opportunity</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -394,6 +440,13 @@ $careers = $pdo->query("SELECT c.*, d.name as dept_name, b.name as branch_name F
                             <option value="Intern">Intern</option>
                         </select>
                     </div>
+                    <div class="mb-3" id="careerStatusGroup" style="display: none;">
+                        <label class="form-label">Position Status</label>
+                        <select name="status" class="form-select">
+                            <option value="Active">Active</option>
+                            <option value="Closed">Closed</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="modal-footer border-0 p-3 bg-light">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
@@ -411,6 +464,65 @@ document.addEventListener("DOMContentLoaded", function() {
     setupAjaxForm('#departmentForm', function(){ window.location.reload(); });
     setupAjaxForm('#designationForm', function(){ window.location.reload(); });
     setupAjaxForm('#careerForm', function(){ window.location.reload(); });
+
+    // Reset forms on Modal show for "Add"
+    $('[data-bs-toggle="modal"]').on('click', function() {
+        var target = $(this).data('bs-target');
+        var form = $(target).find('form');
+        
+        // Only reset if it is not triggered by the edit button
+        if (!$(this).hasClass('edit-org-btn') && form.length) {
+            form[0].reset();
+            form.find('input[name="id"]').val('');
+            
+            var type = form.attr('id').replace('Form', '');
+            form.find('input[name="action"]').val(type + '_create');
+            $(target).find('.modal-title').text('Create ' + type.charAt(0).toUpperCase() + type.slice(1));
+            
+            if (type === 'career') {
+                $('#careerStatusGroup').hide();
+            }
+        }
+    });
+
+    // Handle Edit Clicks
+    $('.edit-org-btn').on('click', function() {
+        var type = $(this).data('type');
+        var id = $(this).data('id');
+        var modalId = '#' + type + 'Modal';
+        var formId = '#' + type + 'Form';
+        
+        // Set action & id
+        $(formId).find('input[name="action"]').val(type + '_update');
+        $(formId).find('input[name="id"]').val(id);
+        $(modalId).find('.modal-title').text('Edit ' + type.charAt(0).toUpperCase() + type.slice(1));
+
+        if (type === 'company') {
+            $(formId).find('input[name="name"]').val($(this).data('name'));
+            $(formId).find('input[name="address"]').val($(this).data('address'));
+            $(formId).find('input[name="contact"]').val($(this).data('contact'));
+        } else if (type === 'branch') {
+            $(formId).find('select[name="company_id"]').val($(this).data('company-id'));
+            $(formId).find('input[name="name"]').val($(this).data('name'));
+            $(formId).find('input[name="address"]').val($(this).data('address'));
+            $(formId).find('input[name="contact"]').val($(this).data('contact'));
+        } else if (type === 'department') {
+            $(formId).find('select[name="branch_id"]').val($(this).data('branch-id'));
+            $(formId).find('input[name="name"]').val($(this).data('name'));
+        } else if (type === 'designation') {
+            $(formId).find('select[name="department_id"]').val($(this).data('department-id'));
+            $(formId).find('input[name="title"]').val($(this).data('title'));
+        } else if (type === 'career') {
+            $(formId).find('input[name="title"]').val($(this).data('title'));
+            $(formId).find('select[name="branch_id"]').val($(this).data('branch-id'));
+            $(formId).find('select[name="department_id"]').val($(this).data('department-id'));
+            $(formId).find('select[name="type"]').val($(this).data('type-val'));
+            $(formId).find('select[name="status"]').val($(this).data('status'));
+            $('#careerStatusGroup').show();
+        }
+
+        $(modalId).modal('show');
+    });
 
     // Handle delete operations
     $('.delete-org-btn').on('click', function() {

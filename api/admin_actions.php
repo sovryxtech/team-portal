@@ -125,6 +125,7 @@ switch ($action) {
         break;
 
     case 'career_create':
+    case 'career_update':
     case 'career_delete':
         $adminController = new \Src\Controller\AdminController();
         $subAction = explode('_', $action)[1];

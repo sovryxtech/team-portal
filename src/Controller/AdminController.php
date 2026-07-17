@@ -230,6 +230,17 @@ class AdminController {
                     'type'          => $data['type']
                 ]);
                 return ['success' => true, 'message' => 'Career opportunity created successfully.'];
+            } elseif ($action === 'update') {
+                $stmt = $pdo->prepare("UPDATE careers SET title = :title, department_id = :department_id, branch_id = :branch_id, type = :type, status = :status WHERE id = :id");
+                $stmt->execute([
+                    'id'            => $data['id'],
+                    'title'         => $data['title'],
+                    'department_id' => $data['department_id'],
+                    'branch_id'     => $data['branch_id'],
+                    'type'          => $data['type'],
+                    'status'        => $data['status'] ?? 'Active'
+                ]);
+                return ['success' => true, 'message' => 'Career opportunity updated successfully.'];
             } elseif ($action === 'delete') {
                 $stmt = $pdo->prepare("DELETE FROM careers WHERE id = :id");
                 $stmt->execute(['id' => $data['id']]);

@@ -48,6 +48,11 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
                     <i class="fa-solid fa-sitemap"></i> Organization CRUD
                 </a>
             </li>
+            <li class="<?= $currentDir === 'admin' && $currentFile === 'org_chart.php' ? 'active' : '' ?>">
+                <a href="<?= get_base_url() ?>/dashboard/admin/org_chart.php">
+                    <i class="fa-solid fa-diagram-project"></i> Interactive Org Chart
+                </a>
+            </li>
             <li class="<?= $currentDir === 'admin' && $currentFile === 'logs.php' ? 'active' : '' ?>">
                 <a href="<?= get_base_url() ?>/dashboard/admin/logs.php">
                     <i class="fa-solid fa-receipt"></i> System Audit Logs

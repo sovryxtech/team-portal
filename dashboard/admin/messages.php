@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-$pageTitle = "Contact Support Messages";
-require_once __DIR__ . '/../../includes/dashboard_header.php';
 require_once __DIR__ . '/../../includes/utils.php';
+require_once __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/csrf.php';
 
 // Verify admin role
 if (!auth_has_role(['Super Admin', 'Admin/HR'])) {
@@ -29,6 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 // Fetch messages
 $messages = $pdo->query("SELECT * FROM contact_messages ORDER BY id DESC")->fetchAll();
+
+$pageTitle = "Contact Support Messages";
+require_once __DIR__ . '/../../includes/dashboard_header.php';
 ?>
 
 <!-- Flash Messages -->

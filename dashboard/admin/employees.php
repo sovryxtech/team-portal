@@ -1,6 +1,134 @@
 <?php
 declare(strict_types=1);
 
+// Handle PHP AJAX Endpoint first before sending any HTML output
+if (isset($_GET['ajax_profile_details']) && isset($_GET['employee_id'])) {
+    require_once __DIR__ . '/../../includes/auth.php';
+    require_once __DIR__ . '/../../includes/db_connection.php';
+    require_once __DIR__ . '/../../includes/utils.php';
+    require_once __DIR__ . '/../../src/Controller/EmployeeController.php';
+
+    $empId = (int)$_GET['employee_id'];
+    $empController = new \Src\Controller\EmployeeController();
+    $details = $empController->getDetails($empId);
+    $documents = $empController->getDocuments($empId);
+    
+    if (!$details):
+    ?>
+        <div class="alert alert-danger">Employee directory record not found.</div>
+    <?php
+    else:
+        $emergency = json_decode($details['emergency_contact'] ?? '{}', true);
+    ?>
+        <!-- Modal Layout -->
+        <div class="row g-4">
+            <!-- Left Pane photo & Profile Overview -->
+            <div class="col-md-4 text-center border-end-md pb-3 pb-md-0">
+                <div class="position-relative d-inline-block mb-3">
+                    <?php if (!empty($details['profile_photo'])): ?>
+                        <img src="<?= get_base_url() . '/' . $details['profile_photo'] ?>" alt="Profile Photo" class="rounded-4 img-fluid shadow-sm border" style="width: 150px; height: 150px; object-fit: cover;">
+                    <?php else: ?>
+                        <div class="bg-primary text-white rounded-4 d-flex align-items-center justify-content-center mx-auto shadow-sm" style="width: 150px; height: 150px; font-size: 4rem; font-weight: 700;">
+                            <?= strtoupper(substr($details['full_name'], 0, 2)) ?>
+                        </div>
+                    <?php endif; ?>
+                    <span class="position-absolute bottom-0 end-0 badge rounded-pill bg-success border border-white border-3 px-2 py-1" style="transform: translate(-10%, -10%);">Active</span>
+                </div>
+                <h4 class="text-primary font-weight-bold mb-1"><?= htmlspecialchars($details['full_name']) ?></h4>
+                <p class="text-secondary font-weight-bold small mb-2"><i class="fa-solid fa-id-badge me-1"></i><?= htmlspecialchars($details['designation_title']) ?></p>
+                <span class="badge bg-secondary-custom text-primary px-3 py-2 rounded-3 small font-weight-bold"><?= htmlspecialchars($details['employee_custom_id']) ?></span>
+                
+                <div class="mt-4 text-start bg-light p-3 rounded-3">
+                    <h6 class="text-muted font-weight-bold text-uppercase small mb-2">Emergency Contact</h6>
+                    <p class="mb-1 text-dark" style="font-size: 0.85rem;"><strong><?= htmlspecialchars($emergency['name'] ?? 'N/A') ?></strong> (<?= htmlspecialchars($emergency['relation'] ?? '') ?>)</p>
+                    <p class="mb-0 text-secondary" style="font-size: 0.85rem;"><i class="fa-solid fa-phone me-1 text-muted"></i><?= htmlspecialchars($emergency['phone'] ?? '') ?></p>
+                </div>
+            </div>
+            
+            <!-- Right Pane Details Grid -->
+            <div class="col-md-8">
+                <h6 class="text-primary font-weight-bold mb-3 border-bottom pb-2"><i class="fa-solid fa-user me-2"></i>Personal & Job Details</h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6">
+                        <div class="p-2 border-bottom">
+                            <span class="text-muted small d-block">Corporate Email</span>
+                            <span class="font-weight-bold text-dark" style="font-size: 0.9rem;"><?= htmlspecialchars($details['email']) ?></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-2 border-bottom">
+                            <span class="text-muted small d-block">Phone Contact</span>
+                            <span class="text-dark font-weight-bold" style="font-size: 0.9rem;"><?= htmlspecialchars($details['phone'] ?? 'N/A') ?></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-2 border-bottom">
+                            <span class="text-muted small d-block">Birth Date / Gender</span>
+                            <span class="text-dark font-weight-bold" style="font-size: 0.9rem;"><?= htmlspecialchars($details['dob'] ?? 'N/A') ?> &bull; <?= htmlspecialchars($details['gender'] ?? 'N/A') ?></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-2 border-bottom">
+                            <span class="text-muted small d-block">Blood Group / Nationality</span>
+                            <span class="text-dark font-weight-bold" style="font-size: 0.9rem;"><?= htmlspecialchars($details['blood_group'] ?? 'N/A') ?> &bull; <?= htmlspecialchars($details['nationality'] ?? 'N/A') ?></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-2 border-bottom">
+                            <span class="text-muted small d-block">Department & Branch</span>
+                            <span class="text-dark font-weight-bold" style="font-size: 0.9rem;"><?= htmlspecialchars($details['department_name']) ?> (<?= htmlspecialchars($details['branch_name']) ?>)</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-2 border-bottom">
+                            <span class="text-muted small d-block">Joining Date / Type</span>
+                            <span class="text-dark font-weight-bold" style="font-size: 0.9rem;"><?= htmlspecialchars($details['joining_date']) ?> (<?= htmlspecialchars($details['employment_type']) ?>)</span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="p-2 border-bottom">
+                            <span class="text-muted small d-block">Residential Address</span>
+                            <span class="text-dark font-weight-bold" style="font-size: 0.9rem;"><?= htmlspecialchars($details['address'] ?? 'N/A') ?></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Document Review inside profile -->
+                <h6 class="text-primary font-weight-bold mb-3 border-bottom pb-2"><i class="fa-solid fa-file-shield me-2"></i>Workforce Documents & Verification</h6>
+                <div class="list-group list-group-flush">
+                    <?php if (empty($documents)): ?>
+                        <div class="text-muted small p-2"><i class="fa-solid fa-circle-info me-1"></i>No credentials uploaded yet.</div>
+                    <?php else: ?>
+                        <?php foreach ($documents as $doc): ?>
+                            <div class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center flex-wrap gap-2" style="font-size: 0.85rem;">
+                                <div>
+                                    <span class="font-weight-bold d-block text-dark"><?= htmlspecialchars($doc['document_type']) ?></span>
+                                    <a href="<?= get_base_url() . '/' . $doc['file_path'] ?>" target="_blank" class="small text-decoration-none text-primary"><i class="fa-solid fa-download me-1"></i>Download/View File</a>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <?php if ($doc['status'] === 'Pending'): ?>
+                                        <span class="badge bg-warning text-dark me-2">Pending Validation</span>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-success verify-doc-btn" data-id="<?= $doc['id'] ?>" data-status="Verified" title="Verify Document"><i class="fa-solid fa-check"></i></button>
+                                            <button type="button" class="btn btn-danger verify-doc-btn" data-id="<?= $doc['id'] ?>" data-status="Rejected" title="Reject Document"><i class="fa-solid fa-xmark"></i></button>
+                                        </div>
+                                    <?php elseif ($doc['status'] === 'Verified'): ?>
+                                        <span class="badge bg-success px-2 py-1"><i class="fa-solid fa-circle-check me-1"></i>Verified</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-danger px-2 py-1"><i class="fa-solid fa-circle-xmark me-1"></i>Rejected</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    <?php
+    endif;
+    exit;
+}
+
 $pageTitle = "Employees Directory";
 require_once __DIR__ . '/../../includes/dashboard_header.php';
 require_once __DIR__ . '/../../includes/utils.php';
@@ -232,132 +360,5 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 </script>
-
-<?php
-// PHP AJAX Endpoint inside the same file for dynamic profile view to keep filesystem clean
-if (isset($_GET['ajax_profile_details']) && isset($_GET['employee_id'])) {
-    ob_end_clean(); // Clear template layouts output so far
-    $empId = (int)$_GET['employee_id'];
-    
-    $empController = new \Src\Controller\EmployeeController();
-    $details = $empController->getDetails($empId);
-    $documents = $empController->getDocuments($empId);
-    
-    if (!$details):
-    ?>
-        <div class="alert alert-danger">Employee directory record not found.</div>
-    <?php
-    else:
-        $emergency = json_decode($details['emergency_contact'] ?? '{}', true);
-    ?>
-        <!-- Modal Layout -->
-        <div class="row g-4">
-            <!-- Left Pane photo & Profile Overview -->
-            <div class="col-md-4 text-center border-end-md pb-3 pb-md-0">
-                <div class="position-relative d-inline-block mb-3">
-                    <?php if (!empty($details['profile_photo'])): ?>
-                        <img src="<?= get_base_url() . '/' . $details['profile_photo'] ?>" alt="Profile Photo" class="rounded-4 img-fluid shadow-sm border" style="width: 150px; height: 150px; object-fit: cover;">
-                    <?php else: ?>
-                        <div class="bg-primary text-white rounded-4 d-flex align-items-center justify-content-center mx-auto shadow-sm" style="width: 150px; height: 150px; font-size: 4rem; font-weight: 700;">
-                            <?= strtoupper(substr($details['full_name'], 0, 2)) ?>
-                        </div>
-                    <?php endif; ?>
-                    <span class="position-absolute bottom-0 end-0 badge rounded-pill bg-success border border-white border-3 px-2 py-1" style="transform: translate(-10%, -10%);">Active</span>
-                </div>
-                <h4 class="text-primary font-weight-bold mb-1"><?= htmlspecialchars($details['full_name']) ?></h4>
-                <p class="text-secondary font-weight-bold small mb-2"><i class="fa-solid fa-id-badge me-1"></i><?= htmlspecialchars($details['designation_title']) ?></p>
-                <span class="badge bg-secondary-custom text-primary px-3 py-2 rounded-3 small font-weight-bold"><?= htmlspecialchars($details['employee_custom_id']) ?></span>
-                
-                <div class="mt-4 text-start bg-light p-3 rounded-3">
-                    <h6 class="text-muted font-weight-bold text-uppercase small mb-2">Emergency Contact</h6>
-                    <p class="mb-1 text-dark" style="font-size: 0.85rem;"><strong><?= htmlspecialchars($emergency['name'] ?? 'N/A') ?></strong> (<?= htmlspecialchars($emergency['relation'] ?? '') ?>)</p>
-                    <p class="mb-0 text-secondary" style="font-size: 0.85rem;"><i class="fa-solid fa-phone me-1 text-muted"></i><?= htmlspecialchars($emergency['phone'] ?? '') ?></p>
-                </div>
-            </div>
-            
-            <!-- Right Pane Details Grid -->
-            <div class="col-md-8">
-                <h6 class="text-primary font-weight-bold mb-3 border-bottom pb-2"><i class="fa-solid fa-user me-2"></i>Personal & Job Details</h6>
-                <div class="row g-3 mb-4">
-                    <div class="col-sm-6">
-                        <div class="p-2 border-bottom">
-                            <span class="text-muted small d-block">Corporate Email</span>
-                            <span class="font-weight-bold text-dark" style="font-size: 0.9rem;"><?= htmlspecialchars($details['email']) ?></span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="p-2 border-bottom">
-                            <span class="text-muted small d-block">Phone Contact</span>
-                            <span class="text-dark font-weight-bold" style="font-size: 0.9rem;"><?= htmlspecialchars($details['phone'] ?? 'N/A') ?></span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="p-2 border-bottom">
-                            <span class="text-muted small d-block">Birth Date / Gender</span>
-                            <span class="text-dark font-weight-bold" style="font-size: 0.9rem;"><?= htmlspecialchars($details['dob'] ?? 'N/A') ?> &bull; <?= htmlspecialchars($details['gender'] ?? 'N/A') ?></span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="p-2 border-bottom">
-                            <span class="text-muted small d-block">Blood Group / Nationality</span>
-                            <span class="text-dark font-weight-bold" style="font-size: 0.9rem;"><?= htmlspecialchars($details['blood_group'] ?? 'N/A') ?> &bull; <?= htmlspecialchars($details['nationality'] ?? 'N/A') ?></span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="p-2 border-bottom">
-                            <span class="text-muted small d-block">Department & Branch</span>
-                            <span class="text-dark font-weight-bold" style="font-size: 0.9rem;"><?= htmlspecialchars($details['department_name']) ?> (<?= htmlspecialchars($details['branch_name']) ?>)</span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="p-2 border-bottom">
-                            <span class="text-muted small d-block">Joining Date / Type</span>
-                            <span class="text-dark font-weight-bold" style="font-size: 0.9rem;"><?= htmlspecialchars($details['joining_date']) ?> (<?= htmlspecialchars($details['employment_type']) ?>)</span>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="p-2 border-bottom">
-                            <span class="text-muted small d-block">Residential Address</span>
-                            <span class="text-dark font-weight-bold" style="font-size: 0.9rem;"><?= htmlspecialchars($details['address'] ?? 'N/A') ?></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Document Review inside profile -->
-                <h6 class="text-primary font-weight-bold mb-3 border-bottom pb-2"><i class="fa-solid fa-file-shield me-2"></i>Workforce Documents & Verification</h6>
-                <div class="list-group list-group-flush">
-                    <?php if (empty($documents)): ?>
-                        <div class="text-muted small p-2"><i class="fa-solid fa-circle-info me-1"></i>No credentials uploaded yet.</div>
-                    <?php else: ?>
-                        <?php foreach ($documents as $doc): ?>
-                            <div class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center flex-wrap gap-2" style="font-size: 0.85rem;">
-                                <div>
-                                    <span class="font-weight-bold d-block text-dark"><?= htmlspecialchars($doc['document_type']) ?></span>
-                                    <a href="<?= get_base_url() . '/' . $doc['file_path'] ?>" target="_blank" class="small text-decoration-none text-primary"><i class="fa-solid fa-download me-1"></i>Download/View File</a>
-                                </div>
-                                <div class="d-flex align-items-center gap-2">
-                                    <?php if ($doc['status'] === 'Pending'): ?>
-                                        <span class="badge bg-warning text-dark me-2">Pending Validation</span>
-                                        <div class="btn-group btn-group-sm">
-                                            <button type="button" class="btn btn-success verify-doc-btn" data-id="<?= $doc['id'] ?>" data-status="Verified" title="Verify Document"><i class="fa-solid fa-check"></i></button>
-                                            <button type="button" class="btn btn-danger verify-doc-btn" data-id="<?= $doc['id'] ?>" data-status="Rejected" title="Reject Document"><i class="fa-solid fa-xmark"></i></button>
-                                        </div>
-                                    <?php elseif ($doc['status'] === 'Verified'): ?>
-                                        <span class="badge bg-success px-2 py-1"><i class="fa-solid fa-circle-check me-1"></i>Verified</span>
-                                    <?php else: ?>
-                                        <span class="badge bg-danger px-2 py-1"><i class="fa-solid fa-circle-xmark me-1"></i>Rejected</span>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
-    <?php
-    endif;
-    exit;
-}
-?>
 
 <?php require_once __DIR__ . '/../../includes/dashboard_footer.php'; ?>

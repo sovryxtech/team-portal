@@ -2,11 +2,27 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Generation Time: Jul 17, 2026 at 03:53 PM
--- Server version: 10.4.28-MariaDB
--- PHP Version: 8.2.4
+-- Host: 127.0.0.1
+-- Generation Time: Jul 17, 2026 at 05:56 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS `verification_logs`;
+DROP TABLE IF EXISTS `login_logs`;
+DROP TABLE IF EXISTS `activity_logs`;
+DROP TABLE IF EXISTS `employee_documents`;
+DROP TABLE IF EXISTS `employee_profiles`;
+DROP TABLE IF EXISTS `employees`;
+DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `roles`;
+DROP TABLE IF EXISTS `careers`;
+DROP TABLE IF EXISTS `designations`;
+DROP TABLE IF EXISTS `departments`;
+DROP TABLE IF EXISTS `branches`;
+DROP TABLE IF EXISTS `companies`;
+DROP TABLE IF EXISTS `contact_messages`;
+DROP TABLE IF EXISTS `registration_requests`;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
@@ -21,21 +37,12 @@ SET time_zone = "+00:00";
 -- Database: `employee_portal`
 --
 
-DROP DATABASE IF EXISTS `employee_portal`;
-CREATE DATABASE `employee_portal` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `employee_portal`;
-
-SET FOREIGN_KEY_CHECKS = 0;
-
-
-
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `activity_logs`
 --
 
-DROP TABLE IF EXISTS `activity_logs`;
 CREATE TABLE `activity_logs` (
   `id` int(10) UNSIGNED NOT NULL,
   `user_id` int(10) UNSIGNED DEFAULT NULL,
@@ -63,7 +70,23 @@ INSERT INTO `activity_logs` (`id`, `user_id`, `action`, `details`, `timestamp`) 
 (12, 4, 'User login', 'Successfully logged in', '2026-07-17 13:25:13'),
 (13, 4, 'User logout', 'Successfully logged out', '2026-07-17 13:28:30'),
 (14, 1, 'User login', 'Successfully logged in', '2026-07-17 13:28:44'),
-(15, 1, 'User logout', 'Successfully logged out', '2026-07-17 13:52:30');
+(15, 1, 'User logout', 'Successfully logged out', '2026-07-17 13:52:30'),
+(16, 2, 'User login', 'Successfully logged in', '2026-07-17 14:01:22'),
+(17, 2, 'User logout', 'Successfully logged out', '2026-07-17 14:02:16'),
+(18, 1, 'User login', 'Successfully logged in', '2026-07-17 14:02:49'),
+(19, 1, 'User login', 'Successfully logged in', '2026-07-17 15:10:28'),
+(20, 1, 'User logout', 'Successfully logged out', '2026-07-17 15:19:53'),
+(21, 1, 'User login', 'Successfully logged in', '2026-07-17 15:20:27'),
+(22, 1, 'User logout', 'Successfully logged out', '2026-07-17 15:25:11'),
+(23, 2, 'User login', 'Successfully logged in', '2026-07-17 15:25:25'),
+(24, 2, 'Updated profile contact info', 'Employee ID: 1', '2026-07-17 15:26:06'),
+(25, 2, 'User logout', 'Successfully logged out', '2026-07-17 15:27:14'),
+(26, 2, 'User login', 'Successfully logged in', '2026-07-17 15:27:31'),
+(27, NULL, 'Contact form submitted', 'Sender: Mohit Shrestha, Subject: Thank You for Contacting Me %from%', '2026-07-17 15:29:42'),
+(28, 2, 'User logout', 'Successfully logged out', '2026-07-17 15:29:48'),
+(29, 1, 'User login', 'Successfully logged in', '2026-07-17 15:30:07'),
+(30, 1, 'User logout', 'Successfully logged out', '2026-07-17 15:36:49'),
+(31, 1, 'User login', 'Successfully logged in', '2026-07-17 15:37:05');
 
 -- --------------------------------------------------------
 
@@ -71,7 +94,6 @@ INSERT INTO `activity_logs` (`id`, `user_id`, `action`, `details`, `timestamp`) 
 -- Table structure for table `branches`
 --
 
-DROP TABLE IF EXISTS `branches`;
 CREATE TABLE `branches` (
   `id` int(10) UNSIGNED NOT NULL,
   `company_id` int(10) UNSIGNED NOT NULL,
@@ -86,7 +108,7 @@ CREATE TABLE `branches` (
 --
 
 INSERT INTO `branches` (`id`, `company_id`, `name`, `address`, `contact`, `created_at`) VALUES
-(1, 1, 'Kathmandu HQ', 'Kathmandu, Nepal', '+977-1-4400000', '2026-07-17 12:21:20');
+(1, 1, 'Biratnagar', 'Biratnagar, Nepal', '+977 974-4907976', '2026-07-17 12:21:20');
 
 -- --------------------------------------------------------
 
@@ -94,7 +116,6 @@ INSERT INTO `branches` (`id`, `company_id`, `name`, `address`, `contact`, `creat
 -- Table structure for table `careers`
 --
 
-DROP TABLE IF EXISTS `careers`;
 CREATE TABLE `careers` (
   `id` int(10) UNSIGNED NOT NULL,
   `title` varchar(150) NOT NULL,
@@ -105,21 +126,12 @@ CREATE TABLE `careers` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `careers`
---
-
-INSERT INTO `careers` (`id`, `title`, `department_id`, `branch_id`, `type`, `status`, `created_at`) VALUES
-(1, 'Senior Web Developer', 1, 1, 'Full-time', 'Active', '2026-07-17 13:36:01'),
-(2, 'UI/UX Designer', 3, 1, 'Full-time', 'Active', '2026-07-17 13:36:01');
-
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `companies`
 --
 
-DROP TABLE IF EXISTS `companies`;
 CREATE TABLE `companies` (
   `id` int(10) UNSIGNED NOT NULL,
   `name` varchar(150) NOT NULL,
@@ -135,7 +147,7 @@ CREATE TABLE `companies` (
 --
 
 INSERT INTO `companies` (`id`, `name`, `logo`, `address`, `contact`, `email_settings`, `created_at`) VALUES
-(1, 'Sovryx Tech', '/assets/images/logo.png', 'Kathmandu, Nepal', '+977-1-4400000', '{\"smtp_host\":\"sandbox.smtp.mailtrap.io\",\"smtp_port\":2525,\"smtp_user\":\"placeholder_user\",\"smtp_pass\":\"placeholder_pass\",\"smtp_secure\":\"tls\",\"from_email\":\"noreply@sovryxtech.com.np\",\"from_name\":\"Sovryx Tech HR System\"}', '2026-07-17 12:21:20');
+(1, 'Sovryx Tech', '/assets/images/logo.png', 'Biratnagar,Nepal', '+977 974-4907976', '[]', '2026-07-17 12:21:20');
 
 -- --------------------------------------------------------
 
@@ -143,7 +155,6 @@ INSERT INTO `companies` (`id`, `name`, `logo`, `address`, `contact`, `email_sett
 -- Table structure for table `contact_messages`
 --
 
-DROP TABLE IF EXISTS `contact_messages`;
 CREATE TABLE `contact_messages` (
   `id` int(10) UNSIGNED NOT NULL,
   `name` varchar(150) NOT NULL,
@@ -153,21 +164,12 @@ CREATE TABLE `contact_messages` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `contact_messages`
---
-
-INSERT INTO `contact_messages` (`id`, `name`, `email`, `subject`, `message`, `created_at`) VALUES
-(1, 'Alice Tester', 'alice@test.com', 'Registration Query', 'Hello, when will my profile registration request be reviewed? Thanks!', '2026-07-17 13:37:26'),
-(2, 'John Doe', 'john.doe@sovryxtech.com.np', 'ID Card Issue', 'Hi Admin, I noticed my profile photo is missing from my digital ID card. Can you check?', '2026-07-17 13:37:26');
-
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `departments`
 --
 
-DROP TABLE IF EXISTS `departments`;
 CREATE TABLE `departments` (
   `id` int(10) UNSIGNED NOT NULL,
   `branch_id` int(10) UNSIGNED NOT NULL,
@@ -180,9 +182,9 @@ CREATE TABLE `departments` (
 --
 
 INSERT INTO `departments` (`id`, `branch_id`, `name`, `created_at`) VALUES
-(1, 1, 'Engineering', '2026-07-17 12:21:20'),
-(2, 1, 'Human Resources', '2026-07-17 12:21:20'),
-(3, 1, 'Design & Creative', '2026-07-17 12:21:20');
+(1, 1, 'Web Developer', '2026-07-17 12:21:20'),
+(2, 1, 'IOT', '2026-07-17 12:21:20'),
+(3, 1, 'Content Creation', '2026-07-17 12:21:20');
 
 -- --------------------------------------------------------
 
@@ -190,7 +192,6 @@ INSERT INTO `departments` (`id`, `branch_id`, `name`, `created_at`) VALUES
 -- Table structure for table `designations`
 --
 
-DROP TABLE IF EXISTS `designations`;
 CREATE TABLE `designations` (
   `id` int(10) UNSIGNED NOT NULL,
   `department_id` int(10) UNSIGNED NOT NULL,
@@ -214,7 +215,6 @@ INSERT INTO `designations` (`id`, `department_id`, `title`, `created_at`) VALUES
 -- Table structure for table `employees`
 --
 
-DROP TABLE IF EXISTS `employees`;
 CREATE TABLE `employees` (
   `id` int(10) UNSIGNED NOT NULL,
   `user_id` int(10) UNSIGNED NOT NULL,
@@ -243,7 +243,6 @@ INSERT INTO `employees` (`id`, `user_id`, `employee_custom_id`, `company_id`, `b
 -- Table structure for table `employee_documents`
 --
 
-DROP TABLE IF EXISTS `employee_documents`;
 CREATE TABLE `employee_documents` (
   `id` int(10) UNSIGNED NOT NULL,
   `employee_id` int(10) UNSIGNED NOT NULL,
@@ -273,7 +272,6 @@ INSERT INTO `employee_documents` (`id`, `employee_id`, `document_type`, `file_pa
 -- Table structure for table `employee_profiles`
 --
 
-DROP TABLE IF EXISTS `employee_profiles`;
 CREATE TABLE `employee_profiles` (
   `id` int(10) UNSIGNED NOT NULL,
   `employee_id` int(10) UNSIGNED NOT NULL,
@@ -294,7 +292,7 @@ CREATE TABLE `employee_profiles` (
 --
 
 INSERT INTO `employee_profiles` (`id`, `employee_id`, `full_name`, `profile_photo`, `dob`, `gender`, `blood_group`, `nationality`, `marital_status`, `phone`, `address`, `emergency_contact`) VALUES
-(1, 1, 'John Doe', NULL, '1995-05-15', 'Male', 'O+', 'Nepali', 'Single', '+977-9841234567', 'Baneshwor, Kathmandu', '{\"name\":\"Jane Doe\",\"relation\":\"Sister\",\"phone\":\"+977-9841234568\"}'),
+(1, 1, 'John Doe', NULL, '1995-05-15', 'Male', 'O+', 'Nepali', 'Single', '+977-9841234567', 'Bargachi', '{\"name\":\"Jane Doe\",\"relation\":\"Sister\",\"phone\":\"+977-9841234568\"}'),
 (2, 2, 'Alice Tester', 'uploads/profiles/test_photo.jpg', '1998-08-20', 'Female', 'A-', 'Nepali', 'Single', '+977-9851122334', 'Patan, Lalitpur', '{\"name\":\"Bob Tester\",\"relation\":\"Father\",\"phone\":\"+977-9851122335\"}'),
 (3, 3, 'Waibhav Mehta', 'uploads/profiles/profiles_6a5a2c177a0f88.40969187_75a10eb6bb8416e3.png', '2065-09-24', 'Male', 'O+', 'Nepali', 'Single', '+9779768811191', 'Inurawa,Sunsari', '{\"name\":\"Suresh Mehta\",\"relation\":\"Father\",\"phone\":\"9842434993\"}');
 
@@ -304,7 +302,6 @@ INSERT INTO `employee_profiles` (`id`, `employee_id`, `full_name`, `profile_phot
 -- Table structure for table `login_logs`
 --
 
-DROP TABLE IF EXISTS `login_logs`;
 CREATE TABLE `login_logs` (
   `id` int(10) UNSIGNED NOT NULL,
   `user_id` int(10) UNSIGNED NOT NULL,
@@ -323,7 +320,15 @@ INSERT INTO `login_logs` (`id`, `user_id`, `ip_address`, `user_agent`, `timestam
 (3, 1, '::1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36', '2026-07-17 13:20:47'),
 (4, 1, '::1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36', '2026-07-17 13:23:31'),
 (5, 4, '::1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36', '2026-07-17 13:25:13'),
-(6, 1, '::1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36', '2026-07-17 13:28:44');
+(6, 1, '::1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36', '2026-07-17 13:28:44'),
+(7, 2, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0', '2026-07-17 14:01:22'),
+(8, 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0', '2026-07-17 14:02:49'),
+(9, 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0', '2026-07-17 15:10:28'),
+(10, 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0', '2026-07-17 15:20:27'),
+(11, 2, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0', '2026-07-17 15:25:25'),
+(12, 2, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0', '2026-07-17 15:27:31'),
+(13, 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0', '2026-07-17 15:30:07'),
+(14, 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0', '2026-07-17 15:37:05');
 
 -- --------------------------------------------------------
 
@@ -331,7 +336,6 @@ INSERT INTO `login_logs` (`id`, `user_id`, `ip_address`, `user_agent`, `timestam
 -- Table structure for table `registration_requests`
 --
 
-DROP TABLE IF EXISTS `registration_requests`;
 CREATE TABLE `registration_requests` (
   `id` int(10) UNSIGNED NOT NULL,
   `form_data_json` text NOT NULL,
@@ -355,7 +359,6 @@ INSERT INTO `registration_requests` (`id`, `form_data_json`, `file_paths_json`, 
 -- Table structure for table `roles`
 --
 
-DROP TABLE IF EXISTS `roles`;
 CREATE TABLE `roles` (
   `id` int(10) UNSIGNED NOT NULL,
   `name` varchar(50) NOT NULL,
@@ -377,7 +380,6 @@ INSERT INTO `roles` (`id`, `name`, `permissions`) VALUES
 -- Table structure for table `users`
 --
 
-DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `id` int(10) UNSIGNED NOT NULL,
   `role_id` int(10) UNSIGNED NOT NULL,
@@ -394,8 +396,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `role_id`, `username`, `password_hash`, `email`, `status`, `last_login`, `created_at`) VALUES
-(1, 1, 'admin', '$2y$10$XLeLi7w4OnFMcXTL1fxyUOl59pV6F6nKFEZg5Nbw/SOoKGS/RHN6m', 'admin@sovryxtech.com.np', 'Active', '2026-07-17 13:28:44', '2026-07-17 12:21:20'),
-(2, 3, 'john.doe', '$2y$10$8/DiF5Wjf1tssaToQe4KJuEDYProAtCYDBYUFGUYabVW/E0DPK.Ne', 'john.doe@sovryxtech.com.np', 'Active', '2026-07-17 12:53:45', '2026-07-17 12:21:20'),
+(1, 1, 'admin', '$2y$10$LehHNoi5Gxw5T/Vx3YX7DubDDnUVHZHgDUlVV6ISJoBvtMhTamcJ2', 'admin@sovryxtech.com.np', 'Active', '2026-07-17 15:37:05', '2026-07-17 12:21:20'),
+(2, 3, 'john.doe', '$2y$10$pmIwfw18hJuNRlRv/n.Mm.ar0SpW8SsiNNIaXuAz3o/l4RATDNUci', 'john.doe@sovryxtech.com.np', 'Active', '2026-07-17 15:27:31', '2026-07-17 12:21:20'),
 (3, 3, 'alice.tester', '$2y$10$f5rw8Dn2G07H1otFkLOw3.zUW6BADgNg8fNv7XVh9xltNVQSTxGSu', 'alice@test.com', 'Active', NULL, '2026-07-17 12:26:46'),
 (4, 3, 'waibhav_mehta', '$2y$10$/2iPg7yOXJaGSgMGz9HXNeg9ay8Iv7bzKyhrwR2WM.lpGEkDHMr8C', 'waibhavm@gmail.com', 'Active', '2026-07-17 13:25:13', '2026-07-17 13:24:29');
 
@@ -405,7 +407,6 @@ INSERT INTO `users` (`id`, `role_id`, `username`, `password_hash`, `email`, `sta
 -- Table structure for table `verification_logs`
 --
 
-DROP TABLE IF EXISTS `verification_logs`;
 CREATE TABLE `verification_logs` (
   `id` int(10) UNSIGNED NOT NULL,
   `employee_id` int(10) UNSIGNED NOT NULL,
@@ -420,7 +421,8 @@ CREATE TABLE `verification_logs` (
 
 INSERT INTO `verification_logs` (`id`, `employee_id`, `scanned_at`, `ip_address`, `user_agent`) VALUES
 (1, 1, '2026-07-17 12:55:06', '::1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36'),
-(2, 3, '2026-07-17 13:26:43', '::1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36');
+(2, 3, '2026-07-17 13:26:43', '::1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36'),
+(3, 1, '2026-07-17 15:27:39', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0');
 
 --
 -- Indexes for dumped tables
@@ -547,13 +549,13 @@ ALTER TABLE `verification_logs`
 -- AUTO_INCREMENT for table `activity_logs`
 --
 ALTER TABLE `activity_logs`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT for table `branches`
 --
 ALTER TABLE `branches`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `careers`
@@ -571,7 +573,7 @@ ALTER TABLE `companies`
 -- AUTO_INCREMENT for table `contact_messages`
 --
 ALTER TABLE `contact_messages`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `departments`
@@ -607,7 +609,7 @@ ALTER TABLE `employee_profiles`
 -- AUTO_INCREMENT for table `login_logs`
 --
 ALTER TABLE `login_logs`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `registration_requests`
@@ -631,7 +633,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `verification_logs`
 --
 ALTER TABLE `verification_logs`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables
@@ -712,5 +714,4 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
 SET FOREIGN_KEY_CHECKS = 1;

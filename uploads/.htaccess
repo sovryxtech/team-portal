@@ -1,0 +1,7 @@
+# Disable script execution inside uploads directory
+RemoveHandler .php .phtml .php3 .php4 .php5 .php6 .php7 .php8 .shtml
+ForceType application/octet-stream
+<FilesMatch "(?i)\.(php|phtml|php3|php4|php5|php6|php7|php8|shtml)$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>

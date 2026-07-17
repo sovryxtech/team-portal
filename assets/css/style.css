@@ -1,0 +1,445 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+    --primary-color: #0B2545;
+    --primary-dark: #071D37;
+    --primary-light: #134074;
+    --secondary-color: #F79F1F;
+    --secondary-hover: #E08B10;
+    --dark-bg: #0F1A2C;
+    --light-bg: #F4F6F9;
+    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    --border-radius: 12px;
+    --text-primary: #1E293B;
+    --text-secondary: #475569;
+    --text-light: #94A3B8;
+    --success: #10B981;
+    --danger: #EF4444;
+    --warning: #F59E0B;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--light-bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--primary-light);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
+/* Gradient Backgrounds */
+.bg-gradient-primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%) !important;
+}
+
+.bg-gradient-secondary {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, #EE964B 100%) !important;
+}
+
+/* Primary Button Styling */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    font-weight: 500;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+.btn-primary:hover, .btn-primary:focus {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(11, 37, 73, 0.2);
+}
+
+/* Secondary Button Styling */
+.btn-secondary-custom {
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    font-weight: 600;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+.btn-secondary-custom:hover {
+    background-color: var(--secondary-hover);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(247, 159, 31, 0.3);
+}
+
+/* Cards & Layout Panels */
+.card-custom {
+    background: white;
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+.card-custom:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+}
+
+/* Navbar Custom styling */
+.navbar-custom {
+    background-color: var(--primary-color);
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.navbar-custom .navbar-brand {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    color: white;
+    font-size: 1.5rem;
+}
+.navbar-custom .navbar-brand span {
+    color: var(--secondary-color);
+}
+.navbar-custom .nav-link {
+    color: rgba(255,255,255,0.85);
+    font-weight: 500;
+    margin-left: 1.2rem;
+    transition: all 0.2s ease;
+}
+.navbar-custom .nav-link:hover, .navbar-custom .nav-link.active {
+    color: var(--secondary-color);
+}
+
+/* Hero Section Style */
+.hero-section {
+    padding: 7rem 0 5rem 0;
+    position: relative;
+    color: white;
+    overflow: hidden;
+}
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 80% 20%, rgba(247, 159, 31, 0.15) 0%, transparent 50%), 
+                linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 100%);
+    z-index: -1;
+}
+
+/* Persistent Dashboard Layout */
+.dashboard-wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+    min-height: 100vh;
+}
+
+/* Persistent Left Sidebar */
+.dashboard-sidebar {
+    min-width: 260px;
+    max-width: 260px;
+    background-color: var(--dark-bg);
+    color: white;
+    transition: all 0.3s;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
+    z-index: 100;
+}
+.dashboard-sidebar .sidebar-header {
+    padding: 1.5rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.dashboard-sidebar .sidebar-header h4 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.3rem;
+}
+.dashboard-sidebar .sidebar-header h4 span {
+    color: var(--secondary-color);
+}
+.dashboard-sidebar ul.components {
+    padding: 1.5rem 0;
+    list-style: none;
+}
+.dashboard-sidebar ul li {
+    padding: 0 1rem;
+    margin-bottom: 0.4rem;
+}
+.dashboard-sidebar ul li a {
+    padding: 0.8rem 1rem;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+.dashboard-sidebar ul li a i {
+    margin-right: 12px;
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+}
+.dashboard-sidebar ul li a:hover, 
+.dashboard-sidebar ul li.active a {
+    color: white;
+    background-color: var(--primary-light);
+}
+.dashboard-sidebar ul li.active a {
+    background-color: var(--secondary-color);
+    box-shadow: 0 4px 12px rgba(247, 159, 31, 0.2);
+}
+
+.dashboard-content {
+    width: 100%;
+    padding: 2rem;
+    transition: all 0.3s;
+}
+
+/* User Widget on Sidebar */
+.sidebar-user-card {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+}
+.sidebar-user-card img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 12px;
+    border: 2px solid var(--secondary-color);
+}
+.sidebar-user-card .user-info h6 {
+    margin: 0;
+    color: white;
+    font-size: 0.95rem;
+}
+.sidebar-user-card .user-info span {
+    color: var(--text-light);
+    font-size: 0.75rem;
+}
+
+/* Form Styles */
+.form-control:focus, .form-select:focus {
+    box-shadow: 0 0 0 3px rgba(11, 37, 73, 0.15);
+    border-color: var(--primary-light);
+}
+
+/* Wizard Forms */
+.wizard-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    position: relative;
+}
+.wizard-steps::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: #E2E8F0;
+    z-index: 1;
+    transform: translateY(-50%);
+}
+.wizard-step-node {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #E2E8F0;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+.wizard-step-node.active {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 0 0 4px rgba(11, 37, 73, 0.2);
+}
+.wizard-step-node.completed {
+    background-color: var(--success);
+    color: white;
+}
+
+/* ID Card Styles */
+.id-card-container {
+    width: 320px;
+    height: 500px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+    position: relative;
+    border: 1px solid #E2E8F0;
+    font-family: 'Poppins', sans-serif;
+    margin: 0 auto;
+}
+.id-card-header {
+    height: 120px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    padding: 1.5rem;
+    text-align: center;
+    position: relative;
+}
+.id-card-header h5 {
+    color: white;
+    margin: 0;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+}
+.id-card-header h5 span {
+    color: var(--secondary-color);
+}
+.id-card-photo-wrapper {
+    position: absolute;
+    bottom: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+}
+.id-card-photo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 4px solid white;
+    object-fit: cover;
+    background-color: #F8FAFC;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+.id-card-body {
+    padding-top: 60px;
+    text-align: center;
+}
+.id-card-body h4 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--primary-color);
+}
+.id-card-body p.designation {
+    color: var(--secondary-color);
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+.id-card-details {
+    padding: 0 1.5rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-align: left;
+}
+.id-card-details .row {
+    margin-bottom: 0.3rem;
+}
+.id-card-details strong {
+    color: var(--primary-color);
+}
+.id-card-qr-section {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+.id-card-qr-section img {
+    width: 90px;
+    height: 90px;
+    border: 1px solid #E2E8F0;
+    padding: 4px;
+    background: white;
+    border-radius: 8px;
+}
+.id-card-status-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: var(--success);
+    color: white;
+    font-size: 0.65rem;
+    padding: 3px 8px;
+    border-radius: 50px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Verification Badge */
+.verified-stamp {
+    display: inline-flex;
+    align-items: center;
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+    border: 2px solid var(--success);
+    padding: 0.5rem 1.5rem;
+    font-size: 1.2rem;
+    font-weight: 800;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transform: rotate(-3deg);
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.15);
+}
+
+/* Metric Widget Cards */
+.metric-card {
+    border-radius: 12px;
+    border: none;
+    box-shadow: var(--card-shadow);
+    padding: 1.5rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+.metric-card i {
+    position: absolute;
+    right: 15px;
+    bottom: 10px;
+    font-size: 4.5rem;
+    opacity: 0.15;
+}
+
+/* Table Design overrides */
+.table-custom {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+}
+.table-custom th {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+    font-weight: 600;
+    border: none;
+}
+.table-custom td {
+    vertical-align: middle;
+}

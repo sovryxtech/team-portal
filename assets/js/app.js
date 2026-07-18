@@ -121,13 +121,28 @@ function initRegistrationWizard(formSelector) {
             });
         }
 
-        if (!isValid) {
+        // Custom validation for Email OTP in Registration (Step 2)
+        if (isValid && stepNum === 2 && $('#emailVerified').length && $('#emailVerified').val() !== '1') {
+            isValid = false;
             Swal.fire({
                 icon: 'warning',
-                title: 'Required Fields',
-                text: 'Please complete all required fields on this step before proceeding.',
+                title: 'Email Verification Required',
+                text: 'Please verify your email address using the OTP before proceeding.',
                 confirmButtonColor: '#0B2545'
             });
+        }
+
+        if (!isValid && stepNum !== 2 || (!isValid && stepNum === 2 && $('#emailVerified').val() === '1')) {
+            // Only show generic required fields warning if it's not the OTP error
+            var hasInvalidInput = $currentContainer.find('.is-invalid').length > 0;
+            if(hasInvalidInput) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Required Fields',
+                    text: 'Please complete all required fields on this step before proceeding.',
+                    confirmButtonColor: '#0B2545'
+                });
+            }
         }
 
         return isValid;

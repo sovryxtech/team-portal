@@ -3,13 +3,6 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/db_connection.php';
 $pageTitle = "Online Registration Wizard";
 require_once __DIR__ . '/includes/header.php';
-
-// Fetch dropdown data
-$pdo = get_db_connection();
-$companies = $pdo->query("SELECT id, name FROM companies ORDER BY name ASC")->fetchAll();
-$branches = $pdo->query("SELECT id, name, company_id FROM branches ORDER BY name ASC")->fetchAll();
-$departments = $pdo->query("SELECT id, name, branch_id FROM departments ORDER BY name ASC")->fetchAll();
-$designations = $pdo->query("SELECT id, title, department_id FROM designations ORDER BY title ASC")->fetchAll();
 ?>
 
 <section class="py-5 bg-light">
@@ -138,62 +131,7 @@ $designations = $pdo->query("SELECT id, title, department_id FROM designations O
 
                         <!-- Step 3: Academic / Experience Background -->
                         <div class="wizard-step-content d-none" data-step="3">
-                            <h4 class="mb-4 text-primary"><i class="fa-solid fa-graduation-cap me-2"></i>Step 3: Employment & Background</h4>
-                            
-                            <h5 class="mb-3 text-secondary">Preferred Employment Details</h5>
-                            <div class="row g-3 mb-4 border-bottom pb-4">
-                                <div class="col-md-4">
-                                    <label class="form-label">Company <span class="text-danger">*</span></label>
-                                    <select name="company_id" class="form-select" required>
-                                        <option value="">Select Company</option>
-                                        <?php foreach ($companies as $c): ?>
-                                            <option value="<?= $c['id'] ?>"><?= e($c['name']) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Branch <span class="text-danger">*</span></label>
-                                    <select name="branch_id" class="form-select" required>
-                                        <option value="">Select Branch</option>
-                                        <?php foreach ($branches as $b): ?>
-                                            <option value="<?= $b['id'] ?>"><?= e($b['name']) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Department <span class="text-danger">*</span></label>
-                                    <select name="department_id" class="form-select" required>
-                                        <option value="">Select Department</option>
-                                        <?php foreach ($departments as $d): ?>
-                                            <option value="<?= $d['id'] ?>"><?= e($d['name']) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Designation <span class="text-danger">*</span></label>
-                                    <select name="designation_id" class="form-select" required>
-                                        <option value="">Select Designation</option>
-                                        <?php foreach ($designations as $ds): ?>
-                                            <option value="<?= $ds['id'] ?>"><?= e($ds['title']) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Employee Type <span class="text-danger">*</span></label>
-                                    <select name="employment_type" class="form-select" required>
-                                        <option value="Full-time">Full-time</option>
-                                        <option value="Part-time">Part-time</option>
-                                        <option value="Contract">Contract</option>
-                                        <option value="Intern">Intern</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Expected Joining Date <span class="text-danger">*</span></label>
-                                    <input type="date" name="joining_date" class="form-control" required>
-                                </div>
-                            </div>
-
-                            <h5 class="mb-3 text-secondary">Academic & Experience</h5>
+                            <h4 class="mb-4 text-primary"><i class="fa-solid fa-graduation-cap me-2"></i>Step 3: Academic & Experience</h4>
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Highest Academic Degree</label>

@@ -217,14 +217,24 @@ class RegistrationController {
             $pdo->commit();
 
             // Send Welcome Email
-            $subject = "Welcome to Sovryx Tech Portal - Account Active";
-            $welcomeBody = "<h3>Dear " . htmlspecialchars($formData['full_name']) . ",</h3>
-                            <p>We are pleased to inform you that your registration has been approved.</p>
-                            <p><strong>Your Employee ID:</strong> " . htmlspecialchars($approvalParams['employee_custom_id']) . "</p>
-                            <p><strong>Login Username:</strong> " . htmlspecialchars($formData['username']) . "</p>
-                            <p>You can now log in to the portal using your credentials to view your Digital ID and upload files.</p>
-                            <p>Best Regards,<br>Sovryx Tech Team</p>";
-            send_notification_email($formData['email'], $subject, $welcomeBody);
+            $templateVars = [
+                'employee_name' => $formData['full_name'],
+                'employee_id' => $approvalParams['employee_custom_id'],
+                'username' => $formData['username'],
+                'login_url' => get_base_url()
+            ];
+            
+            if (!send_templated_email('Welcome Email', $formData['email'], $templateVars)) {
+                // Fallback
+                $subject = "Welcome to Sovryx Tech Portal - Account Active";
+                $welcomeBody = "<h3>Dear " . htmlspecialchars($formData['full_name']) . ",</h3>
+                                <p>We are pleased to inform you that your registration has been approved.</p>
+                                <p><strong>Your Employee ID:</strong> " . htmlspecialchars($approvalParams['employee_custom_id']) . "</p>
+                                <p><strong>Login Username:</strong> " . htmlspecialchars($formData['username']) . "</p>
+                                <p>You can now log in to the portal using your credentials to view your Digital ID and upload files.</p>
+                                <p>Best Regards,<br>Sovryx Tech Team</p>";
+                send_notification_email($formData['email'], $subject, $welcomeBody);
+            }
 
             // Log activity
             log_activity($adminUserId, 'Approved registration request', "Approved Request ID: {$requestId}, Assigned Employee ID: {$approvalParams['employee_custom_id']}");
@@ -264,16 +274,23 @@ class RegistrationController {
             $updateStmt->execute(['id' => $requestId, 'reason' => $reason]);
 
             // Dispatch rejection notification
-            $subject = "Registration Request Update - Rejected";
-            $rejectionBody = "<h3>Dear " . htmlspecialchars($formData['full_name']) . ",</h3>
-                              <p>Thank you for submitting your application to Sovryx Tech.</p>
-                              <p>Unfortunately, your registration request has been rejected for the following reason:</p>
-                              <blockquote style='border-left:3px solid #ff0000; padding-left:10px; font-style:italic;'>
-                                " . htmlspecialchars($reason) . "
-                              </blockquote>
-                              <p>If you believe this was an error, please submit a new application with corrected details.</p>
-                              <p>Best Regards,<br>HR Department</p>";
-            send_notification_email($formData['email'], $subject, $rejectionBody);
+            $templateVars = [
+                'employee_name' => $formData['full_name'],
+                'reason' => $reason
+            ];
+            if (!send_templated_email('Registration Rejected', $formData['email'], $templateVars)) {
+                // Fallback
+                $subject = "Registration Request Update - Rejected";
+                $rejectionBody = "<h3>Dear " . htmlspecialchars($formData['full_name']) . ",</h3>
+                                  <p>Thank you for submitting your application to Sovryx Tech.</p>
+                                  <p>Unfortunately, your registration request has been rejected for the following reason:</p>
+                                  <blockquote style='border-left:3px solid #ff0000; padding-left:10px; font-style:italic;'>
+                                    " . htmlspecialchars($reason) . "
+                                  </blockquote>
+                                  <p>If you believe this was an error, please submit a new application with corrected details.</p>
+                                  <p>Best Regards,<br>HR Department</p>";
+                send_notification_email($formData['email'], $subject, $rejectionBody);
+            }
 
             // Log activity
             log_activity($adminUserId, 'Rejected registration request', "Rejected Request ID: {$requestId}. Reason: {$reason}");

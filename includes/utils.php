@@ -168,8 +168,47 @@ function log_verification_scan(int $employeeId): bool {
             'ip_address'  => get_client_ip(),
             'user_agent'  => get_client_user_agent()
         ]);
-    } catch (Exception $e) {
+} catch (Exception $e) {
         error_log("Failed to log verification scan: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Send an email using a template from the database
+ */
+function send_templated_email(string $templateName, string $toEmail, array $variables): bool {
+    try {
+        $pdo = get_db_connection();
+        $stmt = $pdo->prepare("SELECT subject, body FROM email_templates WHERE name = :name AND is_active = 1 LIMIT 1");
+        $stmt->execute(['name' => $templateName]);
+        $template = $stmt->fetch();
+        
+        if (!$template) {
+            error_log("Template not found or inactive: " . $templateName);
+            return false;
+        }
+        
+        $subject = $template['subject'];
+        $body = $template['body'];
+        
+        // Replace variables
+        foreach ($variables as $key => $value) {
+            $placeholder = '{' . $key . '}';
+            $subject = str_replace($placeholder, (string)$value, $subject);
+            $body = str_replace($placeholder, (string)$value, $body);
+        }
+        
+        // Send email
+        $status = send_notification_email($toEmail, $subject, $body);
+        
+        // Log it
+        $logStmt = $pdo->prepare("INSERT INTO email_logs (to_email, subject, status, error_message) VALUES (?, ?, ?, ?)");
+        $logStmt->execute([$toEmail, $subject, $status ? 'Sent' : 'Failed', $status ? null : 'Failed to send via PHPMailer']);
+        
+        return $status;
+    } catch (Exception $e) {
+        error_log("Error sending templated email: " . $e->getMessage());
         return false;
     }
 }

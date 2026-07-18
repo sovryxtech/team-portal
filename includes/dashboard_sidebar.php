@@ -53,6 +53,27 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
                     <i class="fa-solid fa-diagram-project"></i> Interactive Org Chart
                 </a>
             </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="#communicationsSubmenu" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="communicationsSubmenu">
+                    <i class="fa-solid fa-bullhorn"></i> Communications <i class="fa-solid fa-caret-down ms-auto"></i>
+                </a>
+                <ul class="collapse list-unstyled <?= in_array($currentFile, ['templates.php', 'announcements.php', 'news.php', 'events.php']) ? 'show' : '' ?>" id="communicationsSubmenu">
+                    <li class="<?= $currentFile === 'templates.php' ? 'active' : '' ?>">
+                        <a href="<?= get_base_url() ?>/dashboard/admin/templates.php"><i class="fa-solid fa-envelope"></i> Email Templates</a>
+                    </li>
+                    <li class="<?= $currentFile === 'announcements.php' ? 'active' : '' ?>">
+                        <a href="<?= get_base_url() ?>/dashboard/admin/announcements.php"><i class="fa-solid fa-bell"></i> Announcements</a>
+                    </li>
+                    <li class="<?= $currentFile === 'news.php' ? 'active' : '' ?>">
+                        <a href="<?= get_base_url() ?>/dashboard/admin/news.php"><i class="fa-solid fa-newspaper"></i> Company News</a>
+                    </li>
+                    <li class="<?= $currentFile === 'events.php' ? 'active' : '' ?>">
+                        <a href="<?= get_base_url() ?>/dashboard/admin/events.php"><i class="fa-solid fa-calendar-star"></i> Event Notifications</a>
+                    </li>
+                </ul>
+            </li>
+
             <li class="<?= $currentDir === 'admin' && $currentFile === 'logs.php' ? 'active' : '' ?>">
                 <a href="<?= get_base_url() ?>/dashboard/admin/logs.php">
                     <i class="fa-solid fa-receipt"></i> System Audit Logs
@@ -68,6 +89,11 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
             <li class="<?= $currentDir === 'employee' && $currentFile === 'index.php' ? 'active' : '' ?>">
                 <a href="<?= get_base_url() ?>/dashboard/employee/index.php">
                     <i class="fa-solid fa-user-astronaut"></i> My Profile Hub
+                </a>
+            </li>
+            <li class="<?= $currentDir === 'employee' && $currentFile === 'communications.php' ? 'active' : '' ?>">
+                <a href="<?= get_base_url() ?>/dashboard/employee/communications.php">
+                    <i class="fa-solid fa-tower-broadcast"></i> Communications
                 </a>
             </li>
             <li class="<?= $currentDir === 'employee' && $currentFile === 'id_card.php' ? 'active' : '' ?>">

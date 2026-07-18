@@ -32,3 +32,22 @@ A new contact support message has been submitted.
                   Message:
                   ghcurydcjt
 ---------------------------------------
+[2026-07-18 06:17:18] To: admin@sovryxtech.com.np | Subject: New Employee Registration Request Pending Approval
+Body:
+A new employee registration request has been submitted.
+                          Applicant Name: Mohit Shrestha
+                          Email: mohitstha29@gmail.com
+                          Please log in to the HR Portal to approve or reject this applicant.
+---------------------------------------
+[2026-07-18 06:24:34] To: shresthamanjil29@gmail.com | Subject: [Test] Your Registration is Approved for [Test] , [Test]
+Body:
+Hello [Test],Your registration at [Test] has been approved!Your Department: [Test]Your Designation: [Test]
+---------------------------------------
+[2026-07-18 06:26:39] To: shresthamanjil29@gmail.com | Subject: [Test] Your Registration is Approved for [Test] , [Test]
+Body:
+Hello [Test],Your registration at [Test] has been approved!Your Department: [Test]Your Designation: [Test]
+---------------------------------------
+[2026-07-18 06:28:41] To: shresthamanjil29@gmail.com | Subject: [Test] Your Registration is Approved for [Test] , [Test]
+Body:
+Hello [Test],Your registration at [Test] has been approved!Your Department: [Test]Your Designation: [Test]
+---------------------------------------

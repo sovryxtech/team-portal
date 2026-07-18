@@ -715,3 +715,134 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 SET FOREIGN_KEY_CHECKS = 1;
+  
+-- --------------------------------------------------------
+-- Communication Module Tables
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `email_templates`
+--
+DROP TABLE IF EXISTS `email_templates`;
+CREATE TABLE `email_templates` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(150) NOT NULL,
+  `subject` varchar(255) NOT NULL,
+  `body` text NOT NULL,
+  `variables` text DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping default data for `email_templates`
+--
+INSERT INTO `email_templates` (`name`, `subject`, `body`, `variables`) VALUES
+('Welcome Email', 'Welcome to {company_name}!', '<h1>Welcome {employee_name}!</h1><p>Your employee ID is {employee_id}.</p><p>Login URL: {login_url}</p><p>Username: {username}</p><p>Temporary Password: {temp_password}</p>', '{company_name}, {employee_name}, {employee_id}, {login_url}, {username}, {temp_password}'),
+('Registration Approved', 'Your Registration is Approved', '<p>Hello {employee_name},</p><p>Your registration at {company_name} has been approved!</p><p>Your Department: {department}</p><p>Your Designation: {designation}</p>', '{employee_name}, {company_name}, {department}, {designation}'),
+('Registration Rejected', 'Update on your Registration', '<p>Hello {employee_name},</p><p>Unfortunately, your application was rejected.</p><p>Reason: {rejection_reason}</p>', '{employee_name}, {rejection_reason}');
+
+--
+-- Table structure for table `email_logs`
+--
+DROP TABLE IF EXISTS `email_logs`;
+CREATE TABLE `email_logs` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `to_email` varchar(255) NOT NULL,
+  `subject` varchar(255) NOT NULL,
+  `status` enum('Sent','Failed') DEFAULT 'Sent',
+  `error_message` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `announcements`
+--
+DROP TABLE IF EXISTS `announcements`;
+CREATE TABLE `announcements` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `content` text NOT NULL,
+  `priority` enum('Low','Medium','High') DEFAULT 'Medium',
+  `is_pinned` tinyint(1) DEFAULT 0,
+  `department_id` int(10) UNSIGNED DEFAULT NULL,
+  `branch_id` int(10) UNSIGNED DEFAULT NULL,
+  `expiry_date` date DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `announcement_reads`
+--
+DROP TABLE IF EXISTS `announcement_reads`;
+CREATE TABLE `announcement_reads` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `announcement_id` int(10) UNSIGNED NOT NULL,
+  `user_id` int(10) UNSIGNED NOT NULL,
+  `read_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `company_news`
+--
+DROP TABLE IF EXISTS `company_news`;
+CREATE TABLE `company_news` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `content` text NOT NULL,
+  `category` varchar(100) DEFAULT NULL,
+  `featured_image` varchar(255) DEFAULT NULL,
+  `published_date` date DEFAULT NULL,
+  `is_featured` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `events`
+--
+DROP TABLE IF EXISTS `events`;
+CREATE TABLE `events` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `event_type` varchar(100) DEFAULT NULL,
+  `event_date` date NOT NULL,
+  `event_time` time DEFAULT NULL,
+  `location` varchar(255) DEFAULT NULL,
+  `meeting_link` varchar(255) DEFAULT NULL,
+  `banner` varchar(255) DEFAULT NULL,
+  `requires_rsvp` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `event_notifications`
+--
+DROP TABLE IF EXISTS `event_notifications`;
+CREATE TABLE `event_notifications` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `event_id` int(10) UNSIGNED NOT NULL,
+  `user_id` int(10) UNSIGNED NOT NULL,
+  `rsvp_status` enum('Pending','Attending','Not Attending','Maybe') DEFAULT 'Pending',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Add constraints
+ALTER TABLE `announcements`
+  ADD CONSTRAINT `fk_announcements_dept` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_announcements_branch` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`id`) ON DELETE SET NULL;
+
+ALTER TABLE `announcement_reads`
+  ADD CONSTRAINT `fk_announcement_reads_ann` FOREIGN KEY (`announcement_id`) REFERENCES `announcements` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_announcement_reads_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+ALTER TABLE `event_notifications`
+  ADD CONSTRAINT `fk_event_notif_event` FOREIGN KEY (`event_id`) REFERENCES `events` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_event_notif_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;

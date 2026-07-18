@@ -193,4 +193,66 @@ class EmployeeController {
             return ['success' => false, 'message' => 'Status update failed: ' . $e->getMessage()];
         }
     }
+
+    /**
+     * Submit a support ticket
+     */
+    public function createSupportTicket(int $userId, array $data, ?array $file = null): array {
+        try {
+            $pdo = get_db_connection();
+            
+            // Handle optional attachment upload
+            $attachmentPath = null;
+            if ($file && $file['error'] === UPLOAD_ERR_OK) {
+                $uploadDir = __DIR__ . '/../../uploads/tickets/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+                
+                $fileName = time() . '_' . preg_replace('/[^a-zA-Z0-9.\-_]/', '', basename($file['name']));
+                $targetPath = $uploadDir . $fileName;
+                
+                if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+                    $attachmentPath = 'uploads/tickets/' . $fileName;
+                }
+            }
+            
+            // Generate ticket number
+            $ticketNumber = 'TCK-' . date('Y') . '-' . strtoupper(substr(md5(uniqid()), 0, 6));
+
+            $stmt = $pdo->prepare("
+                INSERT INTO support_tickets (user_id, ticket_number, category, subject, description, attachment) 
+                VALUES (:user_id, :ticket_number, :category, :subject, :description, :attachment)
+            ");
+            
+            $stmt->execute([
+                'user_id' => $userId,
+                'ticket_number' => $ticketNumber,
+                'category' => $data['category'],
+                'subject' => $data['subject'],
+                'description' => $data['description'],
+                'attachment' => $attachmentPath
+            ]);
+            
+            log_activity($userId, 'Submitted Support Ticket', "Ticket Number: {$ticketNumber}");
+            
+            return ['success' => true, 'message' => 'Ticket submitted successfully!'];
+        } catch (\PDOException $e) {
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Get tickets for a user
+     */
+    public function getSupportTickets(int $userId): array {
+        try {
+            $pdo = get_db_connection();
+            $stmt = $pdo->prepare("SELECT * FROM support_tickets WHERE user_id = :user_id ORDER BY created_at DESC");
+            $stmt->execute(['user_id' => $userId]);
+            return $stmt->fetchAll();
+        } catch (\PDOException $e) {
+            return [];
+        }
+    }
 }

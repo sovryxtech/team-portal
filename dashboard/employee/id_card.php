@@ -89,7 +89,20 @@ $qrDataUri = $qrGenerator->generateDataUri($verificationUrl);
 
             <!-- Right Sidebar with Vertical Designation -->
             <div class="id-sidebar">
-                <span class="id-designation"><?= htmlspecialchars($details['designation_title']) ?></span>
+                <?php 
+                $desg = $details['designation_title'];
+                $desgLen = strlen($desg);
+                $desgFontSize = '32px';
+                $desgLetterSpacing = '8px';
+                if ($desgLen > 22) {
+                    $desgFontSize = '18px';
+                    $desgLetterSpacing = '4px';
+                } elseif ($desgLen > 15) {
+                    $desgFontSize = '24px';
+                    $desgLetterSpacing = '6px';
+                }
+                ?>
+                <span class="id-designation" style="font-size: <?= $desgFontSize ?>; letter-spacing: <?= $desgLetterSpacing ?>;"><?= htmlspecialchars($desg) ?></span>
             </div>
 
         </div>
@@ -296,9 +309,7 @@ $qrDataUri = $qrGenerator->generateDataUri($verificationUrl);
 }
 .id-designation {
     color: #ffffff;
-    font-size: 40px;
     font-weight: 800;
-    letter-spacing: 8px;
     writing-mode: vertical-rl;
     text-orientation: upright;
     text-transform: uppercase;

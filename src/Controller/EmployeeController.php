@@ -215,6 +215,27 @@ class EmployeeController {
                 return ['success' => false, 'message' => 'Employee not found.'];
             }
 
+            // Find or create designation
+            $desgTitle = trim($data['designation_title'] ?? '');
+            if (empty($desgTitle)) {
+                return ['success' => false, 'message' => 'Designation Title cannot be empty.'];
+            }
+
+            $desgStmt = $pdo->prepare("SELECT id FROM designations WHERE LOWER(title) = LOWER(:title) LIMIT 1");
+            $desgStmt->execute(['title' => $desgTitle]);
+            $designationId = $desgStmt->fetchColumn();
+
+            if (!$designationId) {
+                $insertDesg = $pdo->prepare("INSERT INTO designations (department_id, title) VALUES (:department_id, :title)");
+                $insertDesg->execute([
+                    'department_id' => (int)($data['department_id'] ?? 1),
+                    'title' => $desgTitle
+                ]);
+                $designationId = (int)$pdo->lastInsertId();
+            } else {
+                $designationId = (int)$designationId;
+            }
+
             // 1. Update user role
             $userStmt = $pdo->prepare("UPDATE users SET role_id = :role_id WHERE id = :id");
             $userStmt->execute([
@@ -222,24 +243,22 @@ class EmployeeController {
                 'id' => $userId
             ]);
 
-            // 2. Update employee job details
+            // 2. Update employee job details (excluding joining_date as it cannot be modified once set)
             $empStmt = $pdo->prepare("
                 UPDATE employees 
                 SET company_id = :company_id,
                     branch_id = :branch_id,
                     department_id = :department_id,
                     designation_id = :designation_id,
-                    employment_type = :employment_type,
-                    joining_date = :joining_date
+                    employment_type = :employment_type
                 WHERE id = :id
             ");
             $empStmt->execute([
                 'company_id'      => (int)($data['company_id'] ?? 1),
                 'branch_id'       => (int)($data['branch_id'] ?? 1),
                 'department_id'   => (int)($data['department_id'] ?? 1),
-                'designation_id'  => (int)($data['designation_id'] ?? 1),
+                'designation_id'  => $designationId,
                 'employment_type' => $data['employment_type'] ?? 'Full-time',
-                'joining_date'    => $data['joining_date'] ?? date('Y-m-d'),
                 'id'              => $employeeId
             ]);
 

@@ -471,7 +471,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 $('#editDetailsCompanyId').val(data.company_id);
                 $('#editDetailsBranchId').val(data.branch_id);
                 $('#editDetailsDeptId').val(data.department_id);
-                $('#editDetailsDesignationId').val(data.designation_id);
+                $('#editDetailsDesignationTitle').val(data.designation_title);
                 $('#editDetailsEmpType').val(data.employment_type);
                 $('#editDetailsJoiningDate').val(data.joining_date);
                 

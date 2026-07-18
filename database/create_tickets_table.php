@@ -25,7 +25,7 @@ try {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ";
 
-    $pdo->exec($sql);
+    $pdo->exec($sql);`
     echo "support_tickets table created successfully.\n";
 
 } catch (Exception $e) {

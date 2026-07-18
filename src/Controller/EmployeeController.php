@@ -294,6 +294,48 @@ class EmployeeController {
             return ['success' => false, 'message' => 'Failed to update details: ' . $e->getMessage()];
         }
     }
+
+    /**
+     * Retrieve all support tickets for a specific user
+     */
+    public function getSupportTickets(int $userId): array {
+        $pdo = get_db_connection();
+        $stmt = $pdo->prepare("SELECT * FROM support_tickets WHERE user_id = :user_id ORDER BY created_at DESC");
+        $stmt->execute(['user_id' => $userId]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Create a new support ticket
+     */
+    public function createSupportTicket(int $userId, array $data, ?array $file): array {
+        try {
+            $attachmentPath = null;
+            if ($file && $file['error'] !== UPLOAD_ERR_NO_FILE) {
+                // Leverage existing document manager to handle upload
+                $attachmentPath = $this->docManager->uploadDocument($file);
+            }
+
+            $ticketNumber = 'TKT-' . random_int(10000, 99999);
+            
+            $pdo = get_db_connection();
+            $stmt = $pdo->prepare("
+                INSERT INTO support_tickets (ticket_number, user_id, category, subject, description, attachment) 
+                VALUES (:ticket_number, :user_id, :category, :subject, :description, :attachment)
+            ");
+            $stmt->execute([
+                'ticket_number' => $ticketNumber,
+                'user_id'       => $userId,
+                'category'      => $data['category'],
+                'subject'       => $data['subject'],
+                'description'   => $data['description'],
+                'attachment'    => $attachmentPath
+            ]);
+
+            log_activity($userId, 'Submitted support ticket', "Ticket: {$ticketNumber}");
+            return ['success' => true, 'message' => 'Support ticket submitted successfully.'];
+        } catch (\Exception $e) {
+            return ['success' => false, 'message' => 'Failed to submit ticket: ' . $e->getMessage()];
         }
     }
 }

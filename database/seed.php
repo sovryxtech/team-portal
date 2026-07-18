@@ -18,6 +18,11 @@ try {
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
     ]);
 
+    echo "Creating database if not exists...\n";
+    $pdo->exec("DROP DATABASE IF EXISTS `{$dbName}`");
+    $pdo->exec("CREATE DATABASE `{$dbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+    $pdo->exec("USE `{$dbName}`");
+
     // 2. Read schema.sql and execute
     $schemaFile = __DIR__ . '/schema.sql';
     if (!file_exists($schemaFile)) {

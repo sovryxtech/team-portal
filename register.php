@@ -1,7 +1,15 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/includes/db_connection.php';
 $pageTitle = "Online Registration Wizard";
 require_once __DIR__ . '/includes/header.php';
+
+// Fetch dropdown data
+$pdo = get_db_connection();
+$companies = $pdo->query("SELECT id, name FROM companies ORDER BY name ASC")->fetchAll();
+$branches = $pdo->query("SELECT id, name, company_id FROM branches ORDER BY name ASC")->fetchAll();
+$departments = $pdo->query("SELECT id, name, branch_id FROM departments ORDER BY name ASC")->fetchAll();
+$designations = $pdo->query("SELECT id, title, department_id FROM designations ORDER BY title ASC")->fetchAll();
 ?>
 
 <section class="py-5 bg-light">
@@ -31,11 +39,19 @@ require_once __DIR__ . '/includes/header.php';
                         <div class="wizard-step-content" data-step="1">
                             <h4 class="mb-4 text-primary"><i class="fa-solid fa-user me-2"></i>Step 1: Personal Information</h4>
                             <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">Full Name <span class="text-danger">*</span></label>
-                                    <input type="text" name="full_name" class="form-control" placeholder="John Doe" required>
+                                <div class="col-md-4">
+                                    <label class="form-label">First Name <span class="text-danger">*</span></label>
+                                    <input type="text" name="first_name" class="form-control" placeholder="John" required>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
+                                    <label class="form-label">Middle Name</label>
+                                    <input type="text" name="middle_name" class="form-control" placeholder="">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                                    <input type="text" name="last_name" class="form-control" placeholder="Doe" required>
+                                </div>
+                                <div class="col-md-4">
                                     <label class="form-label">Date of Birth <span class="text-danger">*</span></label>
                                     <input type="date" name="dob" class="form-control" required>
                                 </div>
@@ -73,16 +89,35 @@ require_once __DIR__ . '/includes/header.php';
                             <h4 class="mb-4 text-primary"><i class="fa-solid fa-address-book me-2"></i>Step 2: Contact & Emergency Details</h4>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                    <label class="form-label">Mobile Number <span class="text-danger">*</span></label>
                                     <input type="tel" name="phone" class="form-control" placeholder="+977-9800000000" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Email Address <span class="text-danger">*</span></label>
-                                    <input type="email" name="email" class="form-control" placeholder="john.doe@example.com" required>
+                                    <label class="form-label">Alternate Mobile</label>
+                                    <input type="tel" name="alternate_phone" class="form-control" placeholder="+977-9800000001">
                                 </div>
-                                <div class="col-12">
-                                    <label class="form-label">Residential Address <span class="text-danger">*</span></label>
+                                <div class="col-md-12">
+                                    <label class="form-label">Email Address <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="email" name="email" id="regEmail" class="form-control" placeholder="john.doe@example.com" required>
+                                        <button class="btn btn-outline-primary" type="button" id="btnSendOtp">Send OTP</button>
+                                    </div>
+                                    <div id="otpContainer" class="mt-2 d-none">
+                                        <div class="input-group w-50">
+                                            <input type="text" id="regOtp" class="form-control" placeholder="Enter 6-digit OTP">
+                                            <button class="btn btn-success" type="button" id="btnVerifyOtp">Verify</button>
+                                        </div>
+                                        <small id="otpStatus" class="form-text text-muted"></small>
+                                    </div>
+                                    <input type="hidden" name="email_verified" id="emailVerified" value="0">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Current Address <span class="text-danger">*</span></label>
                                     <input type="text" name="address" class="form-control" placeholder="Baneshwor, Kathmandu" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Permanent Address <span class="text-danger">*</span></label>
+                                    <input type="text" name="permanent_address" class="form-control" placeholder="Biratnagar, Morang" required>
                                 </div>
                                 
                                 <h5 class="mt-4 mb-2 text-secondary">Emergency Contact Details</h5>
@@ -103,7 +138,62 @@ require_once __DIR__ . '/includes/header.php';
 
                         <!-- Step 3: Academic / Experience Background -->
                         <div class="wizard-step-content d-none" data-step="3">
-                            <h4 class="mb-4 text-primary"><i class="fa-solid fa-graduation-cap me-2"></i>Step 3: Background Details</h4>
+                            <h4 class="mb-4 text-primary"><i class="fa-solid fa-graduation-cap me-2"></i>Step 3: Employment & Background</h4>
+                            
+                            <h5 class="mb-3 text-secondary">Preferred Employment Details</h5>
+                            <div class="row g-3 mb-4 border-bottom pb-4">
+                                <div class="col-md-4">
+                                    <label class="form-label">Company <span class="text-danger">*</span></label>
+                                    <select name="company_id" class="form-select" required>
+                                        <option value="">Select Company</option>
+                                        <?php foreach ($companies as $c): ?>
+                                            <option value="<?= $c['id'] ?>"><?= e($c['name']) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Branch <span class="text-danger">*</span></label>
+                                    <select name="branch_id" class="form-select" required>
+                                        <option value="">Select Branch</option>
+                                        <?php foreach ($branches as $b): ?>
+                                            <option value="<?= $b['id'] ?>"><?= e($b['name']) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Department <span class="text-danger">*</span></label>
+                                    <select name="department_id" class="form-select" required>
+                                        <option value="">Select Department</option>
+                                        <?php foreach ($departments as $d): ?>
+                                            <option value="<?= $d['id'] ?>"><?= e($d['name']) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Designation <span class="text-danger">*</span></label>
+                                    <select name="designation_id" class="form-select" required>
+                                        <option value="">Select Designation</option>
+                                        <?php foreach ($designations as $ds): ?>
+                                            <option value="<?= $ds['id'] ?>"><?= e($ds['title']) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Employee Type <span class="text-danger">*</span></label>
+                                    <select name="employment_type" class="form-select" required>
+                                        <option value="Full-time">Full-time</option>
+                                        <option value="Part-time">Part-time</option>
+                                        <option value="Contract">Contract</option>
+                                        <option value="Intern">Intern</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Expected Joining Date <span class="text-danger">*</span></label>
+                                    <input type="date" name="joining_date" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <h5 class="mb-3 text-secondary">Academic & Experience</h5>
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Highest Academic Degree</label>
@@ -146,11 +236,15 @@ require_once __DIR__ . '/includes/header.php';
                                     <input type="file" name="police_clearance" class="form-control" accept="application/pdf, image/png, image/jpeg" required>
                                 </div>
                                 <div class="col-md-6">
+                                    <label class="form-label">Experience Certificate (Optional)</label>
+                                    <input type="file" name="experience_certificate" class="form-control" accept="application/pdf, image/png, image/jpeg">
+                                </div>
+                                <div class="col-md-6">
                                     <label class="form-label">PAN Card (Optional)</label>
                                     <input type="file" name="pan_card" class="form-control" accept="application/pdf, image/png, image/jpeg">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Appointment Letter (Optional)</label>
+                                    <label class="form-label">Appointment / Offer Letter (Optional)</label>
                                     <input type="file" name="appointment_letter" class="form-control" accept="application/pdf">
                                 </div>
                             </div>
@@ -197,6 +291,85 @@ require_once __DIR__ . '/includes/header.php';
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     initRegistrationWizard('#registrationForm');
+    
+    // OTP Logic
+    const btnSendOtp = document.getElementById('btnSendOtp');
+    const btnVerifyOtp = document.getElementById('btnVerifyOtp');
+    const otpContainer = document.getElementById('otpContainer');
+    const regEmail = document.getElementById('regEmail');
+    const regOtp = document.getElementById('regOtp');
+    const otpStatus = document.getElementById('otpStatus');
+    const emailVerified = document.getElementById('emailVerified');
+
+    btnSendOtp.addEventListener('click', function() {
+        if(!regEmail.value) { alert('Please enter an email address first.'); return; }
+        btnSendOtp.disabled = true;
+        btnSendOtp.innerHTML = 'Sending...';
+        
+        fetch('<?= get_base_url() ?>/api/send_verification_otp.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'email=' + encodeURIComponent(regEmail.value)
+        })
+        .then(r => r.json())
+        .then(res => {
+            if(res.success) {
+                otpContainer.classList.remove('d-none');
+                otpStatus.innerHTML = '<span class="text-success">' + res.message + '</span>';
+                regEmail.readOnly = true;
+            } else {
+                alert(res.message);
+            }
+            btnSendOtp.disabled = false;
+            btnSendOtp.innerHTML = 'Send OTP';
+        })
+        .catch(err => {
+            alert('Error sending OTP.');
+            btnSendOtp.disabled = false;
+            btnSendOtp.innerHTML = 'Send OTP';
+        });
+    });
+
+    btnVerifyOtp.addEventListener('click', function() {
+        if(!regOtp.value) { alert('Please enter the OTP.'); return; }
+        btnVerifyOtp.disabled = true;
+        btnVerifyOtp.innerHTML = 'Verifying...';
+
+        fetch('<?= get_base_url() ?>/api/verify_otp.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'email=' + encodeURIComponent(regEmail.value) + '&otp=' + encodeURIComponent(regOtp.value)
+        })
+        .then(r => r.json())
+        .then(res => {
+            if(res.success) {
+                otpStatus.innerHTML = '<span class="text-success fw-bold"><i class="fa-solid fa-check"></i> ' + res.message + '</span>';
+                emailVerified.value = '1';
+                regOtp.readOnly = true;
+                btnVerifyOtp.classList.remove('btn-success');
+                btnVerifyOtp.classList.add('btn-secondary');
+            } else {
+                otpStatus.innerHTML = '<span class="text-danger">' + res.message + '</span>';
+                btnVerifyOtp.disabled = false;
+            }
+            btnVerifyOtp.innerHTML = 'Verify';
+        })
+        .catch(err => {
+            alert('Error verifying OTP.');
+            btnVerifyOtp.disabled = false;
+            btnVerifyOtp.innerHTML = 'Verify';
+        });
+    });
+
+    // Enforce email verification before submit
+    document.getElementById('registrationForm').addEventListener('submit', function(e) {
+        if(emailVerified.value !== '1') {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            alert('Please verify your email address (Step 2) before submitting the application.');
+            return false;
+        }
+    });
     
     // Setup form submit via AJAX
     setupAjaxForm('#registrationForm', function(response) {

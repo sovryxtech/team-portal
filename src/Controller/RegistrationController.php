@@ -36,10 +36,29 @@ class RegistrationController {
             return ['success' => false, 'message' => 'Invalid CAPTCHA security code.'];
         }
 
+        // Verify Email OTP
+        if (empty($_SESSION['email_verified']) || $_SESSION['email_verified'] !== $postData['email']) {
+            return ['success' => false, 'message' => 'Email address has not been verified. Please verify your email first.'];
+        }
+
+        // Combine Names
+        $firstName = trim($postData['first_name'] ?? '');
+        $middleName = trim($postData['middle_name'] ?? '');
+        $lastName = trim($postData['last_name'] ?? '');
+        $fullName = trim($firstName . ' ' . $middleName . ' ' . $lastName);
+        $postData['full_name'] = preg_replace('/\s+/', ' ', $fullName); // Fix double spaces if no middle name
+
+        // Combine Address
+        $currentAddr = trim($postData['address'] ?? '');
+        $permAddr = trim($postData['permanent_address'] ?? '');
+        if (!empty($permAddr)) {
+            $postData['address'] = json_encode(['current' => $currentAddr, 'permanent' => $permAddr]);
+        }
+
         // Basic verification of required fields
-        $required = ['full_name', 'email', 'phone', 'dob', 'gender', 'username', 'password', 'address'];
+        $required = ['first_name', 'last_name', 'email', 'phone', 'dob', 'gender', 'username', 'password', 'address'];
         foreach ($required as $field) {
-            if (empty($postData[$field])) {
+            if (empty($postData[$field]) && $field !== 'address') { // we handled address manually above
                 return ['success' => false, 'message' => "Field '" . str_replace('_', ' ', $field) . "' is required."];
             }
         }
@@ -82,7 +101,7 @@ class RegistrationController {
             }
 
             // 3. Optional documents
-            $optionalDocs = ['appointment_letter', 'pan_card'];
+            $optionalDocs = ['appointment_letter', 'pan_card', 'experience_certificate'];
             foreach ($optionalDocs as $docType) {
                 if (!empty($filesData[$docType]['name'])) {
                     $uploadedFiles[$docType] = $this->docManager->uploadDocument($filesData[$docType]);

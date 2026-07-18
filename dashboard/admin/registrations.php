@@ -127,11 +127,30 @@ if ($selectedId > 0) {
                                 </div>
                                 <div class="row mb-1">
                                     <div class="col-sm-4 text-muted">Phone:</div>
-                                    <div class="col-sm-8"><?= htmlspecialchars($formData['phone'] ?? 'N/A') ?></div>
+                                    <div class="col-sm-8"><?= htmlspecialchars($formData['phone'] ?? 'N/A') ?>
+                                        <?php if (!empty($formData['alternate_phone'])): ?>
+                                            <br><small class="text-muted">Alt: <?= htmlspecialchars($formData['alternate_phone']) ?></small>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
                                 <div class="row mb-1">
                                     <div class="col-sm-4 text-muted">Address:</div>
-                                    <div class="col-sm-8"><?= htmlspecialchars($formData['address'] ?? 'N/A') ?></div>
+                                    <div class="col-sm-8">
+                                        <?php 
+                                            $addressData = $formData['address'] ?? 'N/A';
+                                            if (is_string($addressData) && strpos($addressData, '{') === 0) {
+                                                $decodedAddr = json_decode($addressData, true);
+                                                if ($decodedAddr) {
+                                                    echo '<strong>Current:</strong> ' . htmlspecialchars($decodedAddr['current'] ?? 'N/A') . '<br>';
+                                                    echo '<strong>Permanent:</strong> ' . htmlspecialchars($decodedAddr['permanent'] ?? 'N/A');
+                                                } else {
+                                                    echo htmlspecialchars($addressData);
+                                                }
+                                            } else {
+                                                echo htmlspecialchars($addressData);
+                                            }
+                                        ?>
+                                    </div>
                                 </div>
                                 <div class="row mb-1">
                                     <div class="col-sm-4 text-muted">Emergency Contact:</div>
@@ -227,8 +246,10 @@ if ($selectedId > 0) {
                         <div class="col-md-6">
                             <label class="form-label font-weight-bold">Company Mapping</label>
                             <select name="company_id" class="form-select" required>
-                                <?php foreach ($companies as $comp): ?>
-                                    <option value="<?= $comp['id'] ?>"><?= htmlspecialchars($comp['name']) ?></option>
+                                <?php foreach ($companies as $comp): 
+                                    $selected = (isset($formData['company_id']) && $formData['company_id'] == $comp['id']) ? 'selected' : '';
+                                ?>
+                                    <option value="<?= $comp['id'] ?>" <?= $selected ?>><?= htmlspecialchars($comp['name']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -237,8 +258,10 @@ if ($selectedId > 0) {
                             <label class="form-label font-weight-bold">Office Branch <span class="text-danger">*</span></label>
                             <select name="branch_id" class="form-select" required>
                                 <option value="">Select Branch</option>
-                                <?php foreach ($branches as $br): ?>
-                                    <option value="<?= $br['id'] ?>"><?= htmlspecialchars($br['name']) ?></option>
+                                <?php foreach ($branches as $br): 
+                                    $selected = (isset($formData['branch_id']) && $formData['branch_id'] == $br['id']) ? 'selected' : '';
+                                ?>
+                                    <option value="<?= $br['id'] ?>" <?= $selected ?>><?= htmlspecialchars($br['name']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -247,8 +270,10 @@ if ($selectedId > 0) {
                             <label class="form-label font-weight-bold">Corporate Department <span class="text-danger">*</span></label>
                             <select name="department_id" class="form-select" required>
                                 <option value="">Select Department</option>
-                                <?php foreach ($departments as $dept): ?>
-                                    <option value="<?= $dept['id'] ?>"><?= htmlspecialchars($dept['name']) ?></option>
+                                <?php foreach ($departments as $dept): 
+                                    $selected = (isset($formData['department_id']) && $formData['department_id'] == $dept['id']) ? 'selected' : '';
+                                ?>
+                                    <option value="<?= $dept['id'] ?>" <?= $selected ?>><?= htmlspecialchars($dept['name']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -257,8 +282,10 @@ if ($selectedId > 0) {
                             <label class="form-label font-weight-bold">Job Designation <span class="text-danger">*</span></label>
                             <select name="designation_id" class="form-select" required>
                                 <option value="">Select Designation</option>
-                                <?php foreach ($designations as $desig): ?>
-                                    <option value="<?= $desig['id'] ?>"><?= htmlspecialchars($desig['title']) ?></option>
+                                <?php foreach ($designations as $desig): 
+                                    $selected = (isset($formData['designation_id']) && $formData['designation_id'] == $desig['id']) ? 'selected' : '';
+                                ?>
+                                    <option value="<?= $desig['id'] ?>" <?= $selected ?>><?= htmlspecialchars($desig['title']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -275,16 +302,17 @@ if ($selectedId > 0) {
                         <div class="col-md-6">
                             <label class="form-label font-weight-bold">Employment Type</label>
                             <select name="employment_type" class="form-select" required>
-                                <option value="Full-time">Full-time</option>
-                                <option value="Part-time">Part-time</option>
-                                <option value="Contract">Contract</option>
-                                <option value="Intern">Intern</option>
+                                <?php $prefType = $formData['employment_type'] ?? ''; ?>
+                                <option value="Full-time" <?= $prefType == 'Full-time' ? 'selected' : '' ?>>Full-time</option>
+                                <option value="Part-time" <?= $prefType == 'Part-time' ? 'selected' : '' ?>>Part-time</option>
+                                <option value="Contract" <?= $prefType == 'Contract' ? 'selected' : '' ?>>Contract</option>
+                                <option value="Intern" <?= $prefType == 'Intern' ? 'selected' : '' ?>>Intern</option>
                             </select>
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label font-weight-bold">Official Joining Date <span class="text-danger">*</span></label>
-                            <input type="date" name="joining_date" class="form-control" value="<?= date('Y-m-d') ?>" required>
+                            <input type="date" name="joining_date" class="form-control" value="<?= htmlspecialchars($formData['joining_date'] ?? date('Y-m-d')) ?>" required>
                         </div>
                     </div>
                 </div>

@@ -13,6 +13,12 @@ if (isset($_GET['ajax_profile_details']) && isset($_GET['employee_id'])) {
     $details = $empController->getDetails($empId);
     $documents = $empController->getDocuments($empId);
     
+    if (isset($_GET['format']) && $_GET['format'] === 'json') {
+        header('Content-Type: application/json');
+        echo json_encode($details);
+        exit;
+    }
+
     if (!$details):
     ?>
         <div class="alert alert-danger">Employee directory record not found.</div>
@@ -149,6 +155,12 @@ $employeesStmt = $pdo->query("
     ORDER BY e.id DESC
 ");
 $employees = $employeesStmt->fetchAll();
+
+$companies = $pdo->query("SELECT id, name FROM companies ORDER BY name ASC")->fetchAll();
+$branches = $pdo->query("SELECT id, name FROM branches ORDER BY name ASC")->fetchAll();
+$departments = $pdo->query("SELECT id, name FROM departments ORDER BY name ASC")->fetchAll();
+$designations = $pdo->query("SELECT id, title FROM designations ORDER BY title ASC")->fetchAll();
+$roles = $pdo->query("SELECT id, name FROM roles ORDER BY name ASC")->fetchAll();
 ?>
 
 <!-- Directory DataTables Export Grid -->
@@ -210,6 +222,10 @@ $employees = $employeesStmt->fetchAll();
                                 <!-- Edit Status Button -->
                                 <button type="button" class="btn btn-outline-warning btn-sm edit-status-btn" data-id="<?= $emp['employee_id'] ?>" data-emp-status="<?= $emp['employment_status'] ?>" data-user-status="<?= $emp['user_status'] ?>" data-bs-toggle="tooltip" title="Change Employment Status">
                                     <i class="fa-solid fa-user-gear"></i>
+                                </button>
+                                <!-- Edit Details Button -->
+                                <button type="button" class="btn btn-outline-info btn-sm edit-details-btn" data-id="<?= $emp['employee_id'] ?>" data-bs-toggle="tooltip" title="Edit Details & Role">
+                                    <i class="fa-solid fa-user-pen"></i>
                                 </button>
                                 <!-- Export ID Badge -->
                                 <a href="<?= get_base_url() ?>/api/download_id_card.php?id=<?= $emp['employee_id'] ?>" target="_blank" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Download Digital ID">
@@ -285,6 +301,132 @@ $employees = $employeesStmt->fetchAll();
     </div>
 </div>
 
+<!-- Edit Details Modal -->
+<div class="modal fade" id="detailsEditModal" tabindex="-1" aria-labelledby="detailsEditModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title font-weight-bold" id="detailsEditModalLabel"><i class="fa-solid fa-user-pen me-2"></i>Modify Employee Details & Role</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <form id="detailsUpdateForm" action="<?= get_base_url() ?>/api/admin_actions.php" method="POST">
+                <?= csrf_field() ?>
+                <input type="hidden" name="action" value="update_employee_details">
+                <input type="hidden" name="employee_id" id="editDetailsEmpId">
+
+                <div class="modal-body p-4">
+                    <!-- Section: Personal Information -->
+                    <h6 class="text-primary font-weight-bold border-bottom pb-2 mb-3"><i class="fa-solid fa-user me-2"></i>Personal Details</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label font-weight-bold">Full Name</label>
+                            <input type="text" name="full_name" id="editDetailsFullName" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label font-weight-bold">Phone Number</label>
+                            <input type="tel" name="phone" id="editDetailsPhone" class="form-control" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label font-weight-bold">Residential Address</label>
+                            <input type="text" name="address" id="editDetailsAddress" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label font-weight-bold">Date of Birth</label>
+                            <input type="date" name="dob" id="editDetailsDob" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label font-weight-bold">Gender</label>
+                            <select name="gender" id="editDetailsGender" class="form-select" required>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label font-weight-bold">Blood Group</label>
+                            <select name="blood_group" id="editDetailsBloodGroup" class="form-select">
+                                <option value="">Select Blood Group</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label font-weight-bold">Nationality</label>
+                            <input type="text" name="nationality" id="editDetailsNationality" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <!-- Section: Employment & Access Role -->
+                    <h6 class="text-primary font-weight-bold border-bottom pb-2 mb-3"><i class="fa-solid fa-briefcase me-2"></i>Job Mapping & Portal Role</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label font-weight-bold">User Access Role</label>
+                            <select name="role_id" id="editDetailsRoleId" class="form-select" required>
+                                <?php foreach ($roles as $role): ?>
+                                    <option value="<?= $role['id'] ?>"><?= htmlspecialchars($role['name']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label font-weight-bold">Company Association</label>
+                            <select name="company_id" id="editDetailsCompanyId" class="form-select" required>
+                                <?php foreach ($companies as $comp): ?>
+                                    <option value="<?= $comp['id'] ?>"><?= htmlspecialchars($comp['name']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label font-weight-bold">Associated Branch</label>
+                            <select name="branch_id" id="editDetailsBranchId" class="form-select" required>
+                                <?php foreach ($branches as $br): ?>
+                                    <option value="<?= $br['id'] ?>"><?= htmlspecialchars($br['name']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label font-weight-bold">Department</label>
+                            <select name="department_id" id="editDetailsDeptId" class="form-select" required>
+                                <?php foreach ($departments as $dept): ?>
+                                    <option value="<?= $dept['id'] ?>"><?= htmlspecialchars($dept['name']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label font-weight-bold">Job Designation</label>
+                            <input type="text" name="designation_title" id="editDetailsDesignationTitle" class="form-control" placeholder="e.g. Senior Software Engineer" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label font-weight-bold">Employment Type</label>
+                            <select name="employment_type" id="editDetailsEmpType" class="form-select" required>
+                                <option value="Full-time">Full-time</option>
+                                <option value="Part-time">Part-time</option>
+                                <option value="Contract">Contract</option>
+                                <option value="Intern">Intern</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label font-weight-bold">Joining Date</label>
+                            <input type="date" name="joining_date" id="editDetailsJoiningDate" class="form-control" readonly>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer border-0 p-3 bg-light">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary px-4 font-weight-bold"><i class="fa-solid fa-floppy-disk me-2"></i>Save Details</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- AJAX fetching and handlers -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -303,6 +445,46 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     setupAjaxForm('#statusUpdateForm', function(res) {
+        window.location.reload();
+    });
+
+    // 1.5. Edit details modal prefilling and handler
+    $('.edit-details-btn').on('click', function() {
+        var empId = $(this).data('id');
+        
+        $.ajax({
+            url: 'employees.php',
+            type: 'GET',
+            data: { ajax_profile_details: 1, employee_id: empId, format: 'json' },
+            dataType: 'json',
+            success: function(data) {
+                $('#editDetailsEmpId').val(empId);
+                $('#editDetailsFullName').val(data.full_name);
+                $('#editDetailsPhone').val(data.phone);
+                $('#editDetailsAddress').val(data.address);
+                $('#editDetailsDob').val(data.dob);
+                $('#editDetailsGender').val(data.gender);
+                $('#editDetailsBloodGroup').val(data.blood_group || '');
+                $('#editDetailsNationality').val(data.nationality);
+                
+                $('#editDetailsRoleId').val(data.role_id);
+                $('#editDetailsCompanyId').val(data.company_id);
+                $('#editDetailsBranchId').val(data.branch_id);
+                $('#editDetailsDeptId').val(data.department_id);
+                $('#editDetailsDesignationId').val(data.designation_id);
+                $('#editDetailsEmpType').val(data.employment_type);
+                $('#editDetailsJoiningDate').val(data.joining_date);
+                
+                var modal = new bootstrap.Modal(document.getElementById('detailsEditModal'));
+                modal.show();
+            },
+            error: function() {
+                Swal.fire('Error', 'Failed to retrieve employee data.', 'error');
+            }
+        });
+    });
+
+    setupAjaxForm('#detailsUpdateForm', function(res) {
         window.location.reload();
     });
 

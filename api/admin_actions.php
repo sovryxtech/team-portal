@@ -78,6 +78,13 @@ switch ($action) {
         echo json_encode($res);
         break;
 
+    case 'update_employee_details':
+        $empId = (int)($_POST['employee_id'] ?? 0);
+        $empController = new \Src\Controller\EmployeeController();
+        $res = $empController->updateEmployeeDetails($empId, $_POST, (int)$currentUser['id']);
+        echo json_encode($res);
+        break;
+
     case 'verify_document':
         $docId = (int)($_POST['document_id'] ?? 0);
         $status = $_POST['status'] ?? 'Verified';

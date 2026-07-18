@@ -102,19 +102,19 @@ $qrDataUri = $qrGenerator->generateDataUri($verificationUrl);
     </div>
 </div>
 
-<!-- ========== ID Card Styles — Exact Physical Card Replica ========== -->
+<!-- ========== ID Card Styles — Scaled to 638px * 1011px (1011 * 638 px) ========== -->
 <style>
 /* ---------- Card Shell ---------- */
 .id-card {
-    width: 340px;
-    min-height: 540px;
+    width: 638px;
+    height: 1011px;
     background: #ffffff;
-    border: 1px solid #bbb;
-    border-radius: 6px;
+    border: 1.5px solid #bbb;
+    border-radius: 12px;
     position: relative;
     margin: 0 auto;
     overflow: hidden;
-    box-shadow: 0 6px 24px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.08);
+    box-shadow: 0 10px 40px rgba(0,0,0,.15);
     display: flex;
     flex-direction: row;
 }
@@ -125,7 +125,7 @@ $qrDataUri = $qrGenerator->generateDataUri($verificationUrl);
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 18px 14px 12px 14px;
+    padding: 35px 30px 25px 30px;
     position: relative;
     z-index: 1;
     min-width: 0;
@@ -142,7 +142,7 @@ $qrDataUri = $qrGenerator->generateDataUri($verificationUrl);
     pointer-events: none;
 }
 .id-watermark img {
-    width: 200px;
+    width: 380px;
     filter: grayscale(100%);
 }
 
@@ -150,12 +150,12 @@ $qrDataUri = $qrGenerator->generateDataUri($verificationUrl);
 .id-header {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 18px;
     width: 100%;
-    margin-bottom: 12px;
+    margin-bottom: 25px;
 }
 .id-logo-icon {
-    height: 44px;
+    height: 80px;
     width: auto;
     object-fit: contain;
 }
@@ -166,30 +166,30 @@ $qrDataUri = $qrGenerator->generateDataUri($verificationUrl);
 }
 .id-company-name {
     font-family: 'Georgia', 'Times New Roman', serif;
-    font-size: 20px;
+    font-size: 36px;
     font-weight: 700;
     color: #1B2A4A;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
 }
 .id-company-sub {
     font-family: 'Georgia', 'Times New Roman', serif;
-    font-size: 13px;
+    font-size: 22px;
     font-weight: 700;
     color: #1B2A4A;
-    letter-spacing: 1.2px;
+    letter-spacing: 2px;
     text-transform: uppercase;
-    margin-top: 1px;
+    margin-top: 3px;
 }
 
 /* ---------- Circular Photo ---------- */
 .id-photo-wrap {
-    margin: 6px 0 8px;
+    margin: 15px 0 20px;
 }
 .id-photo {
-    width: 130px;
-    height: 130px;
+    width: 250px;
+    height: 250px;
     border-radius: 50%;
-    border: 4px solid #1B2A4A;
+    border: 7px solid #1B2A4A;
     object-fit: cover;
     background: #eee;
     display: block;
@@ -198,7 +198,7 @@ $qrDataUri = $qrGenerator->generateDataUri($verificationUrl);
     display: flex !important;
     align-items: center;
     justify-content: center;
-    font-size: 2.8rem;
+    font-size: 5.5rem;
     font-weight: 700;
     color: #fff;
     background: #1B2A4A !important;
@@ -207,28 +207,28 @@ $qrDataUri = $qrGenerator->generateDataUri($verificationUrl);
 /* ---------- Full Name ---------- */
 .id-fullname {
     font-family: 'Georgia', 'Times New Roman', serif;
-    font-size: 20px;
+    font-size: 38px;
     font-weight: 800;
     color: #111;
-    letter-spacing: 1.8px;
+    letter-spacing: 3px;
     text-align: center;
-    margin-bottom: 8px;
+    margin-bottom: 20px;
     line-height: 1.2;
-    word-spacing: 4px;
+    word-spacing: 6px;
 }
 
 /* ---------- Detail Rows ---------- */
 .id-details {
     width: 100%;
     text-align: left;
-    font-size: 12.5px;
+    font-size: 22px;
     font-family: Arial, Helvetica, sans-serif;
     color: #222;
-    line-height: 1.75;
-    margin-bottom: 8px;
+    line-height: 2;
+    margin-bottom: 20px;
 }
 .id-detail-row {
-    padding-left: 4px;
+    padding-left: 10px;
 }
 .id-label {
     font-weight: 700;
@@ -236,11 +236,11 @@ $qrDataUri = $qrGenerator->generateDataUri($verificationUrl);
 
 /* ---------- QR Code ---------- */
 .id-qr {
-    margin: 2px 0 6px;
+    margin: 10px 0 20px;
 }
 .id-qr img {
-    width: 78px;
-    height: 78px;
+    width: 130px;
+    height: 130px;
     image-rendering: pixelated;
 }
 
@@ -248,25 +248,25 @@ $qrDataUri = $qrGenerator->generateDataUri($verificationUrl);
 .id-auth {
     width: 100%;
     text-align: left;
-    padding-left: 4px;
+    padding-left: 10px;
     margin-top: auto;
 }
 .id-signature-line {
     font-family: 'Brush Script MT', 'Segoe Script', cursive;
-    font-size: 22px;
+    font-size: 36px;
     color: #333;
-    border-bottom: 1.5px solid #222;
+    border-bottom: 2.5px solid #222;
     display: inline-block;
-    padding-bottom: 1px;
-    width: 110px;
+    padding-bottom: 2px;
+    width: 200px;
     text-align: center;
     line-height: 1;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
 }
 .id-auth-label {
-    font-size: 8.5px;
+    font-size: 15px;
     font-weight: 800;
-    letter-spacing: 0.8px;
+    letter-spacing: 1.5px;
     color: #111;
     text-transform: uppercase;
 }
@@ -275,19 +275,19 @@ $qrDataUri = $qrGenerator->generateDataUri($verificationUrl);
 .id-footer-address {
     width: 100%;
     text-align: center;
-    font-size: 8.5px;
+    font-size: 15px;
     font-weight: 700;
     color: #222;
     line-height: 1.5;
-    margin-top: 8px;
-    padding-top: 6px;
-    border-top: 1px solid #ddd;
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1.5px solid #ddd;
 }
 
 /* ---------- Right Sidebar ---------- */
 .id-sidebar {
-    width: 56px;
-    min-width: 56px;
+    width: 110px;
+    min-width: 110px;
     background: #1B2A4A;
     display: flex;
     align-items: center;
@@ -296,31 +296,25 @@ $qrDataUri = $qrGenerator->generateDataUri($verificationUrl);
 }
 .id-designation {
     color: #ffffff;
-    font-size: 22px;
+    font-size: 40px;
     font-weight: 800;
-    letter-spacing: 4px;
+    letter-spacing: 8px;
     writing-mode: vertical-rl;
     text-orientation: upright;
     text-transform: uppercase;
     text-align: center;
-    line-height: 1;
-    padding: 14px 0;
+    line-height: 1.1;
+    padding: 25px 0;
     font-family: Arial, Helvetica, sans-serif;
 }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 400px) {
+@media (max-width: 680px) {
     .id-card {
-        width: 95vw;
-        min-height: 480px;
-    }
-    .id-designation {
-        font-size: 16px;
-        letter-spacing: 2px;
-    }
-    .id-sidebar {
-        width: 44px;
-        min-width: 44px;
+        width: 100%;
+        max-width: 638px;
+        height: auto;
+        min-height: 900px;
     }
 }
 </style>
@@ -337,10 +331,12 @@ $qrDataUri = $qrGenerator->generateDataUri($verificationUrl);
     #printableIdCard {
         position: absolute;
         left: 50%;
-        top: 10%;
+        top: 5%;
         transform: translateX(-50%);
         box-shadow: none !important;
-        border: 1.5px solid #000;
+        border: 2px solid #000;
+        width: 638px;
+        height: 1011px;
     }
 }
 </style>

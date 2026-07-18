@@ -25,7 +25,7 @@ class EmployeeController {
     public function getDetails(int $employeeId): array|null {
         $pdo = get_db_connection();
         $stmt = $pdo->prepare("
-            SELECT e.*, ep.*, u.username, u.email, u.status as user_status,
+            SELECT e.*, ep.*, u.username, u.email, u.status as user_status, u.role_id,
                    c.name as company_name, b.name as branch_name,
                    d.name as department_name, dg.title as designation_title
             FROM employees e
@@ -191,6 +191,88 @@ class EmployeeController {
         } catch (\Exception $e) {
             $pdo->rollBack();
             return ['success' => false, 'message' => 'Status update failed: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Update Employee Profile, Job, and User Role details (Admin operation)
+     */
+    public function updateEmployeeDetails(int $employeeId, array $data, int $adminUserId): array {
+        if (empty(trim($data['full_name'] ?? ''))) {
+            return ['success' => false, 'message' => 'Full Name cannot be empty.'];
+        }
+
+        try {
+            $pdo = get_db_connection();
+            $pdo->beginTransaction();
+
+            // Fetch user ID
+            $stmt = $pdo->prepare("SELECT user_id FROM employees WHERE id = :id");
+            $stmt->execute(['id' => $employeeId]);
+            $userId = $stmt->fetchColumn();
+
+            if (!$userId) {
+                return ['success' => false, 'message' => 'Employee not found.'];
+            }
+
+            // 1. Update user role
+            $userStmt = $pdo->prepare("UPDATE users SET role_id = :role_id WHERE id = :id");
+            $userStmt->execute([
+                'role_id' => (int)($data['role_id'] ?? 3),
+                'id' => $userId
+            ]);
+
+            // 2. Update employee job details
+            $empStmt = $pdo->prepare("
+                UPDATE employees 
+                SET company_id = :company_id,
+                    branch_id = :branch_id,
+                    department_id = :department_id,
+                    designation_id = :designation_id,
+                    employment_type = :employment_type,
+                    joining_date = :joining_date
+                WHERE id = :id
+            ");
+            $empStmt->execute([
+                'company_id'      => (int)($data['company_id'] ?? 1),
+                'branch_id'       => (int)($data['branch_id'] ?? 1),
+                'department_id'   => (int)($data['department_id'] ?? 1),
+                'designation_id'  => (int)($data['designation_id'] ?? 1),
+                'employment_type' => $data['employment_type'] ?? 'Full-time',
+                'joining_date'    => $data['joining_date'] ?? date('Y-m-d'),
+                'id'              => $employeeId
+            ]);
+
+            // 3. Update employee profile details
+            $profStmt = $pdo->prepare("
+                UPDATE employee_profiles 
+                SET full_name = :full_name,
+                    phone = :phone,
+                    address = :address,
+                    dob = :dob,
+                    gender = :gender,
+                    blood_group = :blood_group,
+                    nationality = :nationality
+                WHERE employee_id = :employee_id
+            ");
+            $profStmt->execute([
+                'full_name'   => trim($data['full_name'] ?? ''),
+                'phone'       => trim($data['phone'] ?? ''),
+                'address'     => trim($data['address'] ?? ''),
+                'dob'         => !empty($data['dob']) ? $data['dob'] : null,
+                'gender'      => $data['gender'] ?? 'Male',
+                'blood_group' => !empty($data['blood_group']) ? $data['blood_group'] : null,
+                'nationality' => trim($data['nationality'] ?? ''),
+                'employee_id' => $employeeId
+            ]);
+
+            $pdo->commit();
+
+            log_activity($adminUserId, 'Modified employee details & role', "Employee ID: {$employeeId}");
+            return ['success' => true, 'message' => 'Employee details and role updated successfully.'];
+        } catch (\Exception $e) {
+            $pdo->rollBack();
+            return ['success' => false, 'message' => 'Failed to update details: ' . $e->getMessage()];
         }
     }
 }

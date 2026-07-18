@@ -294,4 +294,6 @@ class EmployeeController {
             return ['success' => false, 'message' => 'Failed to update details: ' . $e->getMessage()];
         }
     }
+        }
+    }
 }

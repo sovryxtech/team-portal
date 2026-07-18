@@ -62,6 +62,28 @@ switch ($action) {
         echo json_encode($res);
         break;
 
+    case 'submit_ticket':
+        $data = [
+            'category'    => trim($_POST['category'] ?? ''),
+            'subject'     => trim($_POST['subject'] ?? ''),
+            'description' => trim($_POST['description'] ?? '')
+        ];
+        
+        if (empty($data['category']) || empty($data['subject']) || empty($data['description'])) {
+            echo json_encode(['success' => false, 'message' => 'All fields are required.']);
+            exit;
+        }
+
+        $file = null;
+        if (!empty($_FILES['attachment']['name'])) {
+            $file = $_FILES['attachment'];
+        }
+
+        $controller = new \Src\Controller\EmployeeController();
+        $res = $controller->createSupportTicket((int)$currentUser['id'], $data, $file);
+        echo json_encode($res);
+        break;
+
     default:
         echo json_encode(['success' => false, 'message' => 'Invalid action specifier.']);
         break;

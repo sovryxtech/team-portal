@@ -12,7 +12,7 @@ return [
     'smtp_pass'    => 'gypm utpn rbms deiy', 
     'smtp_secure'  => 'tls', // tls or ssl
     'from_email'   => 'sovryx.tech@gmail.com',
-    'from_name'    => 'Sovryx Tech Employee Portal',
+    'from_name'    => 'no-reply@sovryxtech.com.np',
     
     // Set to true to log emails to a local file instead of sending, useful for development
     'debug_mode'   => false, 

@@ -116,6 +116,9 @@ $templates = $pdo->query("SELECT * FROM email_templates ORDER BY name ASC")->fet
                                 <?php endif; ?>
                             </td>
                             <td class="text-end">
+                                <button class="btn btn-sm btn-outline-secondary me-1" onclick="openPreviewModal(<?= htmlspecialchars(json_encode($tpl)) ?>)">
+                                    <i class="fa-solid fa-eye"></i> Preview
+                                </button>
                                 <button class="btn btn-sm btn-outline-info me-1" onclick="openTestModal(<?= $tpl['id'] ?>)">
                                     <i class="fa-solid fa-paper-plane"></i> Test
                                 </button>
@@ -216,6 +219,29 @@ $templates = $pdo->query("SELECT * FROM email_templates ORDER BY name ASC")->fet
     </div>
 </div>
 
+<!-- Email Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title"><i class="fa-solid fa-eye me-2"></i>Email Preview: <span id="previewName"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 bg-white" style="border-bottom: 1px solid #dee2e6;">
+                <div class="mb-3">
+                    <strong>Subject:</strong> <span id="previewSubject"></span>
+                </div>
+                <hr>
+                <div id="previewBody" class="p-3 bg-light rounded" style="min-height: 200px;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Include Quill script -->
 <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 <script>
@@ -268,6 +294,14 @@ $templates = $pdo->query("SELECT * FROM email_templates ORDER BY name ASC")->fet
     function openTestModal(id) {
         document.getElementById('testTemplateId').value = id;
         var modal = new bootstrap.Modal(document.getElementById('testEmailModal'));
+        modal.show();
+    }
+    
+    function openPreviewModal(template) {
+        document.getElementById('previewName').innerText = template.name;
+        document.getElementById('previewSubject').innerText = template.subject;
+        document.getElementById('previewBody').innerHTML = template.body;
+        var modal = new bootstrap.Modal(document.getElementById('previewModal'));
         modal.show();
     }
 </script>

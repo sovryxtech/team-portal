@@ -22,7 +22,7 @@ class EmployeeController {
     /**
      * Fetch complete employee profile details
      */
-    public function getDetails(int $employeeId): array|null {
+    public function getDetails(int $employeeId): ?array {
         $pdo = get_db_connection();
         $stmt = $pdo->prepare("
             SELECT e.*, ep.*, u.username, u.email, u.status as user_status, u.role_id,
@@ -46,7 +46,7 @@ class EmployeeController {
     /**
      * Fetch employee profile details by user ID
      */
-    public function getDetailsByUserId(int $userId): array|null {
+    public function getDetailsByUserId(int $userId): ?array {
         $pdo = get_db_connection();
         $stmt = $pdo->prepare("SELECT id FROM employees WHERE user_id = :user_id LIMIT 1");
         $stmt->execute(['user_id' => $userId]);

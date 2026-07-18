@@ -1,5 +1,11 @@
 <?php
 declare(strict_types=1);
+
+// Enable error reporting to debug the 500 error on the live server
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
+
 $pageTitle = "Modern HR Management & Verification";
 require_once __DIR__ . '/includes/header.php';
 ?>

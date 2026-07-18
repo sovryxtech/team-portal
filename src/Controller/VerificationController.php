@@ -13,7 +13,7 @@ class VerificationController {
     /**
      * Resolve employee data by custom ID and log verification scan
      */
-    public function verifyEmployee(string $customId): array|null {
+    public function verifyEmployee(string $customId): ?array {
         if (empty($customId)) {
             return null;
         }

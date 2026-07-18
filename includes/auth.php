@@ -109,7 +109,7 @@ function auth_check(): bool {
 /**
  * Get current logged in user details from session
  */
-function auth_user(): array|null {
+function auth_user(): ?array {
     if (!auth_check()) {
         return null;
     }

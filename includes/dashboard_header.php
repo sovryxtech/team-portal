@@ -44,22 +44,66 @@ $currentUser = auth_user();
     <!-- Main Content Area -->
     <div class="dashboard-content">
         <!-- Top Navbar in Dashboard -->
-        <nav class="navbar navbar-expand navbar-light bg-white px-4 py-3 mb-4 rounded-4 shadow-sm">
+        <nav class="navbar navbar-expand navbar-light bg-white px-4 py-3 mb-4 rounded-4 shadow-sm" style="border: 1px solid rgba(0,0,0,0.03);">
             <div class="container-fluid p-0">
-                <h4 class="mb-0 font-weight-bold text-primary"><?= isset($pageTitle) ? htmlspecialchars($pageTitle) : 'Dashboard' ?></h4>
-                <div class="ms-auto d-flex align-items-center">
-                    <span class="text-secondary me-3 d-none d-md-inline">Welcome, <strong><?= htmlspecialchars($currentUser['full_name']) ?></strong></span>
+                <div class="d-flex flex-column">
+                    <h4 class="mb-0 font-weight-bold text-primary" style="font-family: 'Poppins', sans-serif;"><?= isset($pageTitle) ? htmlspecialchars($pageTitle) : 'Dashboard' ?></h4>
+                    <span class="text-secondary small d-none d-md-inline">Welcome back, <?= htmlspecialchars(explode(' ', trim($currentUser['full_name']))[0]) ?>!</span>
+                </div>
+                
+                <div class="ms-auto d-flex align-items-center gap-4">
+                    <!-- Search Bar -->
+                    <div class="d-none d-lg-flex position-relative">
+                        <i class="fa-solid fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                        <input type="text" class="form-control rounded-pill bg-light border-0 ps-5 pe-4 py-2" placeholder="Search..." style="width: 250px; font-size: 0.9rem;">
+                    </div>
+
+                    <!-- Language Switcher -->
+                    <div class="dropdown d-none d-sm-block">
+                        <a href="#" class="text-secondary text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-solid fa-globe fs-5"></i> EN
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3" style="border-radius: 12px; min-width: 120px;">
+                            <li><a class="dropdown-item active" href="#">English (EN)</a></li>
+                            <li><a class="dropdown-item" href="#">Nepali (NE)</a></li>
+                            <li><a class="dropdown-item" href="#">Spanish (ES)</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Dark Mode Toggle -->
+                    <a href="#" class="text-secondary text-decoration-none d-none d-sm-block" id="darkModeToggle" title="Toggle Dark Mode">
+                        <i class="fa-solid fa-moon fs-5"></i>
+                    </a>
+
+                    <!-- Notifications -->
+                    <div class="dropdown">
+                        <a href="#" class="text-secondary position-relative text-decoration-none" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-regular fa-bell fs-4"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+                                3
+                                <span class="visually-hidden">unread messages</span>
+                            </span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3 p-0" style="width: 320px; border-radius: 12px; overflow: hidden;">
+                            <li class="bg-light p-3 border-bottom"><h6 class="mb-0">Notifications</h6></li>
+                            <li><a class="dropdown-item py-3 border-bottom" href="#"><i class="fa-solid fa-envelope text-primary me-2"></i> New Announcement posted</a></li>
+                            <li><a class="dropdown-item py-3 border-bottom" href="#"><i class="fa-solid fa-calendar text-warning me-2"></i> Upcoming event tomorrow</a></li>
+                            <li><a class="dropdown-item py-3 text-center text-primary fw-bold" href="#">View All Notifications</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- User Profile Dropdown -->
                     <div class="dropdown">
                         <a class="d-flex align-items-center text-decoration-none dropdown-toggle text-dark" href="#" role="button" id="userMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                             <?php if (!empty($currentUser['profile_photo'])): ?>
-                                <img src="<?= get_base_url() . '/' . $currentUser['profile_photo'] ?>" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover; border: 2px solid var(--secondary-color);">
+                                <img src="<?= get_base_url() . '/' . $currentUser['profile_photo'] ?>" alt="Profile" class="rounded-circle" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                             <?php else: ?>
-                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-weight: 600;">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                                     <?= strtoupper(substr($currentUser['username'], 0, 2)) ?>
                                 </div>
                             <?php endif; ?>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="userMenuLink">
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3" aria-labelledby="userMenuLink" style="border-radius: 12px;">
                             <li><span class="dropdown-header">Signed in as <strong><?= htmlspecialchars($currentUser['username']) ?></strong></span></li>
                             <li><hr class="dropdown-divider"></li>
                             <?php if ($currentUser['role_name'] === 'Employee'): ?>

@@ -106,6 +106,16 @@ $currentDir = basename(dirname($_SERVER['PHP_SELF']));
                     <i class="fa-solid fa-file-shield"></i> Document Vault
                 </a>
             </li>
+            <li class="<?= $currentDir === 'employee' && $currentFile === 'helpdesk.php' ? 'active' : '' ?>">
+                <a href="<?= get_base_url() ?>/dashboard/employee/helpdesk.php">
+                    <i class="fa-solid fa-headset"></i> Help Desk
+                </a>
+            </li>
+            <li class="<?= $currentDir === 'employee' && $currentFile === 'settings.php' ? 'active' : '' ?>">
+                <a href="<?= get_base_url() ?>/dashboard/employee/settings.php">
+                    <i class="fa-solid fa-gear"></i> Settings
+                </a>
+            </li>
         <?php endif; ?>
         
         <hr class="mx-3 my-3 text-white-50">

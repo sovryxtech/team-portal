@@ -8,10 +8,10 @@ require_once __DIR__ . '/includes/header.php';
 <section class="py-5 bg-light">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-lg-9">
-                <div class="card-custom p-4 p-md-5">
+            <div class="col-lg-9 mt-4">
+                <div class="card-modern shadow-lg border-0 p-4 p-md-5">
                     <div class="text-center mb-5">
-                        <h2 class="text-primary font-weight-bold">Employee Self-Registration Portal</h2>
+                        <h2 class="text-dark fw-bold" style="font-family: 'Poppins', sans-serif;">Employee Self-Registration Portal</h2>
                         <p class="text-secondary">Please fill in the 5-step wizard to register your profile.</p>
                     </div>
 

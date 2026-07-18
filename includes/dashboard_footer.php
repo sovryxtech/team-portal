@@ -4,6 +4,34 @@ declare(strict_types=1);
     </div> <!-- Close dashboard-content -->
 </div> <!-- Close dashboard-wrapper -->
 
+<!-- Mobile Bottom Navigation (Only visible on mobile) -->
+<div class="mobile-bottom-nav d-md-none">
+    <a href="<?= get_base_url() ?>/dashboard/employee/index.php" class="nav-item <?= basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : '' ?>">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+    </a>
+    <a href="<?= get_base_url() ?>/dashboard/employee/documents.php" class="nav-item <?= basename($_SERVER['PHP_SELF']) == 'documents.php' ? 'active' : '' ?>">
+        <i class="fa-solid fa-folder-open"></i>
+        <span>Docs</span>
+    </a>
+    
+    <!-- Floating Action Button in Center -->
+    <div class="nav-item-fab">
+        <a href="<?= get_base_url() ?>/dashboard/employee/id_card.php" class="fab-button shadow-lg">
+            <i class="fa-solid fa-qrcode text-white"></i>
+        </a>
+    </div>
+
+    <a href="<?= get_base_url() ?>/dashboard/employee/communications.php" class="nav-item <?= basename($_SERVER['PHP_SELF']) == 'communications.php' ? 'active' : '' ?>">
+        <i class="fa-regular fa-bell"></i>
+        <span>Updates</span>
+    </a>
+    <a href="<?= get_base_url() ?>/dashboard/employee/settings.php" class="nav-item <?= basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'active' : '' ?>">
+        <i class="fa-solid fa-gear"></i>
+        <span>More</span>
+    </a>
+</div>
+
 <!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

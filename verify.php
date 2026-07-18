@@ -20,8 +20,8 @@ if (!empty($customId)) {
         <div class="row justify-content-center">
             <div class="col-lg-6">
                 <!-- Search Box Card -->
-                <div class="card-custom p-4 text-center mb-4">
-                    <h3 class="text-primary mb-3">Public Employee Verification</h3>
+                <div class="card-modern shadow-lg p-4 p-md-5 text-center mb-4">
+                    <h3 class="text-dark fw-bold mb-3" style="font-family: 'Poppins', sans-serif;">Public Employee Verification</h3>
                     <p class="text-muted">Enter official Employee ID or scan the QR code to verify credential status.</p>
                     
                     <form method="GET" action="verify.php" class="mt-4">
@@ -35,7 +35,7 @@ if (!empty($customId)) {
                 <!-- Verification Output Card -->
                 <?php if ($searched): ?>
                     <?php if ($employee): ?>
-                        <div class="card-custom p-4 border border-success-subtle text-center bg-white">
+                        <div class="card-modern shadow-lg p-4 p-md-5 border border-success-subtle text-center bg-white">
                             <!-- Verified Badge -->
                             <div class="mb-4">
                                 <div class="verified-stamp">
@@ -95,7 +95,7 @@ if (!empty($customId)) {
                         </div>
                     <?php else: ?>
                         <!-- Error / Not Verified Case -->
-                        <div class="card-custom p-5 border border-danger-subtle text-center bg-white">
+                        <div class="card-modern shadow-lg p-5 border border-danger-subtle text-center bg-white">
                             <div class="text-danger mb-4">
                                 <i class="fa-solid fa-triangle-exclamation" style="font-size: 5rem;"></i>
                             </div>

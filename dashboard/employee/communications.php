@@ -86,7 +86,7 @@ $events = $eventsStmt->fetchAll();
         <div class="row g-4">
             <?php foreach ($news_items as $news): ?>
             <div class="col-md-6">
-                <div class="card h-100 shadow-sm border-0">
+                <div class="card-modern h-100 border-0">
                     <?php if ($news['featured_image']): ?>
                         <img src="<?= get_base_url() . '/' . e($news['featured_image']) ?>" class="card-img-top" alt="News Image" style="height: 150px; object-fit: cover;">
                     <?php else: ?>
@@ -111,7 +111,7 @@ $events = $eventsStmt->fetchAll();
             <!-- News Modal -->
             <div class="modal fade" id="newsModal<?= $news['id'] ?>" tabindex="-1">
                 <div class="modal-dialog modal-lg">
-                    <div class="modal-content border-0 shadow">
+                    <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
                         <div class="modal-header border-0 pb-0">
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
@@ -141,7 +141,7 @@ $events = $eventsStmt->fetchAll();
 
     <!-- Sidebar Column: Events -->
     <div class="col-lg-4">
-        <div class="card shadow-sm border-0 sticky-top" style="top: 20px;">
+        <div class="card-modern border-0 sticky-top" style="top: 20px;">
             <div class="card-header bg-white border-0 pt-4 pb-0">
                 <h5 class="text-primary mb-0"><i class="fa-solid fa-calendar-star me-2"></i>Upcoming Events</h5>
             </div>

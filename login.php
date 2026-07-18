@@ -47,12 +47,12 @@ require_once __DIR__ . '/includes/header.php';
     <div class="container">
         <div class="row justify-content-center mt-4">
             <div class="col-md-5">
-                <div class="card-custom p-4 p-md-5">
+                <div class="card-modern shadow-lg border-0 p-4 p-md-5 mt-5">
                     <div class="text-center mb-4">
-                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                            <i class="fa-solid fa-shield-halved" style="font-size: 2rem;"></i>
+                        <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 72px; height: 72px;">
+                            <i class="fa-solid fa-shield-halved" style="font-size: 2.5rem;"></i>
                         </div>
-                        <h3 class="text-primary font-weight-bold">Member Portal Access</h3>
+                        <h3 class="text-dark fw-bold" style="font-family: 'Poppins', sans-serif;">Member Portal Access</h3>
                         <p class="text-secondary small">Access employee dashboards and audit directories.</p>
                     </div>
 

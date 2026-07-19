@@ -14,14 +14,14 @@ use PHPMailer\PHPMailer\Exception;
 /**
  * XSS escaping helper
  */
-function e(string|null $value): string {
+function e($value): string {
     return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');
 }
 
 /**
  * Log user activity into the database
  */
-function log_activity(int|null $userId, string $action, string|null $details = null): bool {
+function log_activity($userId, string $action, $details = null): bool {
     try {
         $pdo = get_db_connection();
         $stmt = $pdo->prepare("INSERT INTO activity_logs (user_id, action, details) VALUES (:user_id, :action, :details)");
@@ -77,7 +77,7 @@ function get_client_user_agent(): string {
 /**
  * Send email using PHPMailer/SMTP with debug logging support
  */
-function send_notification_email(string $toEmail, string $subject, string $bodyHTML, string|null $bodyText = null): bool {
+function send_notification_email(string $toEmail, string $subject, string $bodyHTML, $bodyText = null): bool {
     $mailConfig = require __DIR__ . '/../config/mail.php';
     
     // Log email details if debug mode is active

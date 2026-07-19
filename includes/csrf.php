@@ -27,7 +27,7 @@ function csrf_field(): string {
 /**
  * Validate a request token against session
  */
-function csrf_verify(array|null $source = null): bool {
+function csrf_verify($source = null): bool {
     if (empty($_SESSION['csrf_token'])) {
         return false;
     }

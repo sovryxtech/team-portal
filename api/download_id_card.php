@@ -45,7 +45,7 @@ $verificationUrl = get_base_url() . '/verify.php?id=' . $details['employee_custo
 $qrDataUri = $qrGenerator->generateDataUri($verificationUrl);
 
 // Helper to convert images to base64 Data URIs for absolute DomPDF reliability
-function get_image_data_uri(string|null $relativePath): string {
+function get_image_data_uri($relativePath): string {
     if ($relativePath === null) return '';
     $absolutePath = __DIR__ . '/../' . $relativePath;
     if (file_exists($absolutePath) && is_file($absolutePath)) {

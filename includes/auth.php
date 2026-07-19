@@ -129,7 +129,7 @@ function auth_user(): ?array {
 /**
  * Check if current user has a specific role or matches any in an array of roles
  */
-function auth_has_role(string|array $roles): bool {
+function auth_has_role($roles): bool {
     if (!auth_check()) {
         return false;
     }
@@ -151,7 +151,7 @@ function auth_has_role(string|array $roles): bool {
 /**
  * Enforce authentication and check roles. Redirect on failure.
  */
-function auth_enforce(string|array|null $allowedRoles = null): void {
+function auth_enforce($allowedRoles = null): void {
     if (!auth_check()) {
         // Store current URL in session for post-login redirect
         $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
